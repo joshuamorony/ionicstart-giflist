@@ -16,11 +16,17 @@ export class RedditService {
   }
 
   loadGifs() {
+    const newData = this.fetchData();
+
+    this.gifs$.next([...this.gifs$.value, ...newData]);
+  }
+
+  fetchData() {
     const dummyData = [
       { title: 'hello', url: 'https://google.com', src: '' },
       { title: 'there', url: 'https://google.com', src: '' },
     ];
 
-    this.gifs$.next(dummyData);
+    return dummyData;
   }
 }

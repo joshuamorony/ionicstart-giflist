@@ -35,5 +35,17 @@ describe('RedditService', () => {
       service.loadGifs();
       expect(getGifsSpy.getLastValue()?.length).toBeGreaterThan(0);
     });
+
+    it('should add additional data to getGifs() array every time it is called', () => {
+      service.loadGifs();
+      service.loadGifs();
+
+      const sizeBefore = getGifsSpy.getValueAt(
+        getGifsSpy.getValuesLength() - 2
+      ).length;
+      const sizeAfter = getGifsSpy.getLastValue()?.length;
+
+      expect(sizeAfter).toBeGreaterThan(sizeBefore);
+    });
   });
 });
