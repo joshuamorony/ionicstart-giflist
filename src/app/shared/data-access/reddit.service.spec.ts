@@ -22,6 +22,12 @@ describe('RedditService', () => {
     it('should return a stream of an empty array initially', () => {
       expect(getGifsSpy.getLastValue()).toEqual([]);
     });
+
+    it('should trigger load method', () => {
+      jest.spyOn(service, 'loadGifs');
+      service.getGifs();
+      expect(service.loadGifs).toHaveBeenCalled();
+    });
   });
 
   describe('loadGifs()', () => {
