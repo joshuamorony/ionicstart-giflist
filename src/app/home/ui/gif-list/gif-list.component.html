@@ -1,3 +1,5 @@
-<p>
-  gif-list works!
-</p>
+<ion-list>
+  <ion-item *ngFor="let gif of gifs" data-test="gif-item">
+    <ion-label>{{ gif.title }}</ion-label>
+  </ion-item>
+</ion-list>
