@@ -8,5 +8,5 @@ import { Gif } from '../../../shared/interfaces/gif';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class GifListComponent {
-  @Input() gifs!: Gif[];
+  @Input() gifs!: Gif[] | null;
 }

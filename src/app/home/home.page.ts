@@ -1,4 +1,5 @@
 import { ChangeDetectionStrategy, Component } from '@angular/core';
+import { RedditService } from '../shared/data-access/reddit.service';
 
 @Component({
   selector: 'app-home',
@@ -7,5 +8,7 @@ import { ChangeDetectionStrategy, Component } from '@angular/core';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class HomePage {
-  constructor() {}
+  gifs$ = this.redditService.getGifs();
+
+  constructor(private redditService: RedditService) {}
 }
