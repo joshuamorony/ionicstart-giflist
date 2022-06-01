@@ -1,9 +1,18 @@
-import { ChangeDetectionStrategy } from '@angular/core';
+import { ChangeDetectionStrategy, Component, Input } from '@angular/core';
 import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 import { By } from '@angular/platform-browser';
 import { IonicModule } from '@ionic/angular';
+import { Gif } from '../../../shared/interfaces/gif';
 
 import { GifListComponent } from './gif-list.component';
+
+@Component({
+  selector: 'app-gif-list',
+  template: '',
+})
+export class MockGifListComponent {
+  @Input() gifs!: Gif[];
+}
 
 describe('GifListComponent', () => {
   let component: GifListComponent;
