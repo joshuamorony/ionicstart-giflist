@@ -19,8 +19,8 @@ describe('RedditService', () => {
   });
 
   describe('getGifs()', () => {
-    it('should return a stream of an empty array initially', () => {
-      expect(getGifsSpy.getLastValue()).toEqual([]);
+    it('should return a stream of an array', () => {
+      expect(getGifsSpy.getLastValue()).toBeInstanceOf(Array);
     });
 
     it('should trigger load method', () => {

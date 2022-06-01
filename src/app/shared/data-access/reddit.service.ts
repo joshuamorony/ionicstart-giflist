@@ -11,6 +11,7 @@ export class RedditService {
   constructor() {}
 
   getGifs() {
+    this.loadGifs();
     return this.gifs$.asObservable();
   }
 

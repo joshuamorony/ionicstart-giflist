@@ -45,7 +45,7 @@ describe('GifListComponent', () => {
   describe('@Input() gifs', () => {
     it('should render an item for each gif', () => {
       const gifItems = fixture.debugElement.queryAll(
-        By.css('[data-test="gif-item"]')
+        By.css('[data-test="gif-list-item"]')
       );
 
       expect(gifItems.length).toEqual(testGifs.length);
