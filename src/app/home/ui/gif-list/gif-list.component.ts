@@ -1,4 +1,5 @@
-import { Component, ChangeDetectionStrategy } from '@angular/core';
+import { Component, ChangeDetectionStrategy, Input } from '@angular/core';
+import { Gif } from '../../../shared/interfaces/gif';
 
 @Component({
   selector: 'app-gif-list',
@@ -6,4 +7,6 @@ import { Component, ChangeDetectionStrategy } from '@angular/core';
   styleUrls: ['./gif-list.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class GifListComponent {}
+export class GifListComponent {
+  @Input() gifs!: Gif[];
+}
