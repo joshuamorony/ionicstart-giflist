@@ -22,7 +22,10 @@ export class RedditService {
   loadGifs() {
     this.http
       .get<RedditResponse>(this.api)
-      .pipe(map((res) => this.convertRedditPostsToGifs(res.data.children)))
+      .pipe(
+        map((res) => this.convertRedditPostsToGifs(res.data.children)),
+        map((gifs) => gifs.filter((gif) => gif.src !== null))
+      )
       .subscribe((gifs) => {
         this.gifs$.next([...this.gifs$.value, ...gifs]);
       });
@@ -76,6 +79,6 @@ export class RedditService {
     }
 
     // No useable formats available
-    return false;
+    return null;
   }
 }

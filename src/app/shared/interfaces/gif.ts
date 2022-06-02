@@ -1,5 +1,5 @@
 export interface Gif {
-  src: string | boolean;
+  src: string | null;
   author: string;
   name: string;
   permalink: string;

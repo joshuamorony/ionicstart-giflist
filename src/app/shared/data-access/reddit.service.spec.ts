@@ -103,6 +103,23 @@ describe('RedditService', () => {
       expect(sizeAfter).toBeGreaterThan(sizeBefore);
     });
 
+    it('should filter out any gifs that do not have a useable src property', () => {
+      testResponse.data.children[0].data.secure_media = null as any;
+      testResponse.data.children[0].data.media.reddit_video = null as any;
+      testResponse.data.children[0].data.preview = null as any;
+
+      const lengthWithNoPostFiltered = testResponse.data.children.length;
+
+      service.loadGifs();
+
+      const mockReq = httpMock.expectOne(api);
+      mockReq.flush(testResponse);
+
+      const result = getGifsSpy.getLastValue();
+
+      expect(result?.length).toBeLessThan(lengthWithNoPostFiltered);
+    });
+
     it('should convert src to mp4 format if the post is in .gifv format', () => {
       testResponse.data.children[0].data.url = 'https://test.com/test.gifv';
 
