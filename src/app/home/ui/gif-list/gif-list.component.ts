@@ -23,6 +23,7 @@ export class GifListComponent {
       };
 
       video.addEventListener('loadeddata', handleVideoLoaded);
+      video.setAttribute('data-event-loadeddata', 'true');
     }
   }
 }

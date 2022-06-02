@@ -63,37 +63,25 @@ describe('GifListComponent', () => {
   describe('playVideo()', () => {
     const testGif = {} as any;
 
+    const target: Partial<HTMLVideoElement> = {
+      readyState: 0,
+      load: jest.fn(),
+      play: jest.fn(),
+      addEventListener: jest.fn(),
+      removeEventListener: jest.fn(),
+      setAttribute: jest.fn(),
+    };
+
+    const testEvent = {
+      target,
+    } as Event;
+
     it('should trigger loading the video if the video has not yet loaded', () => {
-      const target: Partial<HTMLVideoElement> = {
-        readyState: 0,
-        load: jest.fn(),
-        play: jest.fn(),
-        addEventListener: jest.fn(),
-        removeEventListener: jest.fn(),
-      };
-
-      const testEvent = {
-        target,
-      } as Event;
-
       component.playVideo(testEvent, testGif);
-
       expect(target.load).toHaveBeenCalled();
     });
 
     it('should play the video once it has finished loading', () => {
-      const target: Partial<HTMLVideoElement> = {
-        readyState: 0,
-        load: jest.fn(),
-        play: jest.fn(),
-        addEventListener: jest.fn(),
-        removeEventListener: jest.fn(),
-      };
-
-      const testEvent = {
-        target,
-      } as Event;
-
       component.playVideo(testEvent, testGif);
 
       expect(target.addEventListener).toHaveBeenCalledWith(
@@ -107,7 +95,13 @@ describe('GifListComponent', () => {
       expect(target.play).toHaveBeenCalled();
     });
 
-    it('should add the data-event-loadeddata attribute once a load is triggered', () => {});
+    it('should add the data-event-loadeddata attribute once a load is triggered', () => {
+      component.playVideo(testEvent, testGif);
+      expect(target.setAttribute).toHaveBeenCalledWith(
+        'data-event-loadeddata',
+        'true'
+      );
+    });
 
     it('should not attempt to load the video if the data-event-loadeddata attribute is present', () => {});
 
