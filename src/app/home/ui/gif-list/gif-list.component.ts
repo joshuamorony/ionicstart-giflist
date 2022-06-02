@@ -15,15 +15,17 @@ export class GifListComponent {
 
     if (video.readyState === 4) {
     } else {
-      video.load();
+      if (video.getAttribute('data-event-loaddeddata') !== 'true') {
+        video.load();
 
-      const handleVideoLoaded = () => {
-        video.play();
-        video.removeEventListener('loadeddata', handleVideoLoaded);
-      };
+        const handleVideoLoaded = () => {
+          video.play();
+          video.removeEventListener('loadeddata', handleVideoLoaded);
+        };
 
-      video.addEventListener('loadeddata', handleVideoLoaded);
-      video.setAttribute('data-event-loadeddata', 'true');
+        video.addEventListener('loadeddata', handleVideoLoaded);
+        video.setAttribute('data-event-loadeddata', 'true');
+      }
     }
   }
 }

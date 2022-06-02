@@ -62,19 +62,24 @@ describe('GifListComponent', () => {
 
   describe('playVideo()', () => {
     const testGif = {} as any;
+    let testEvent: Event;
+    let target: Partial<HTMLVideoElement>;
 
-    const target: Partial<HTMLVideoElement> = {
-      readyState: 0,
-      load: jest.fn(),
-      play: jest.fn(),
-      addEventListener: jest.fn(),
-      removeEventListener: jest.fn(),
-      setAttribute: jest.fn(),
-    };
+    beforeEach(() => {
+      target = {
+        readyState: 0,
+        load: jest.fn(),
+        play: jest.fn(),
+        addEventListener: jest.fn(),
+        removeEventListener: jest.fn(),
+        setAttribute: jest.fn(),
+        getAttribute: jest.fn(),
+      };
 
-    const testEvent = {
-      target,
-    } as Event;
+      testEvent = {
+        target,
+      } as Event;
+    });
 
     it('should trigger loading the video if the video has not yet loaded', () => {
       component.playVideo(testEvent, testGif);
@@ -103,7 +108,12 @@ describe('GifListComponent', () => {
       );
     });
 
-    it('should not attempt to load the video if the data-event-loadeddata attribute is present', () => {});
+    it('should not attempt to load the video if the data-event-loadeddata attribute is present', () => {
+      target.getAttribute = jest.fn().mockReturnValue('true');
+
+      component.playVideo(testEvent, testGif);
+      expect(target.load).not.toHaveBeenCalled();
+    });
 
     it('should set the gifs loading state to true once a load is triggered', () => {});
 
