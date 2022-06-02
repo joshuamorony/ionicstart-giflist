@@ -2,6 +2,9 @@ import { getListItems, navigateToHomePage } from '../support/utils';
 
 describe('Home', () => {
   beforeEach(() => {
+    cy.intercept('GET', '**/.json?limit=100', {
+      fixture: 'reddit.json',
+    });
     navigateToHomePage();
   });
 

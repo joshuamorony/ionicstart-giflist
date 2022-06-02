@@ -31,16 +31,6 @@ export class RedditService {
       });
   }
 
-  private fetchData() {
-    //this.http.get(this.api).subscribe();
-    // make request
-    // map(convertRedditPostToGif)
-    // filter(unuseable)
-    // map
-    // .subscribe
-    // next
-  }
-
   private convertRedditPostsToGifs(posts: RedditPost[]) {
     return posts.map((post) => ({
       src: this.getBestSrcForGif(post),
