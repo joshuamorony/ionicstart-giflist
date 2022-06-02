@@ -1,5 +1,9 @@
 /* eslint-disable @typescript-eslint/naming-convention */
 import { TestBed } from '@angular/core/testing';
+import {
+  HttpTestingController,
+  HttpClientTestingModule,
+} from '@angular/common/http/testing';
 import { SubscriberSpy, subscribeSpyTo } from '@hirez_io/observer-spy';
 import { Gif } from '../interfaces/gif';
 import { RedditPost } from '../interfaces/reddit-post';
@@ -9,12 +13,18 @@ import { RedditService } from './reddit.service';
 
 describe('RedditService', () => {
   let service: RedditService;
+  let httpMock: HttpTestingController;
+
   let getGifsSpy: SubscriberSpy<Gif[]>;
   let testResponse: RedditResponse;
+  const api = `https://www.reddit.com/r/gifs/hot/.json?limit=100`;
 
   beforeEach(() => {
-    TestBed.configureTestingModule({});
+    TestBed.configureTestingModule({
+      imports: [HttpClientTestingModule],
+    });
     service = TestBed.inject(RedditService);
+    httpMock = TestBed.inject(HttpTestingController);
     getGifsSpy = subscribeSpyTo(service.getGifs());
 
     const testData: RedditPost = {
@@ -41,7 +51,7 @@ describe('RedditService', () => {
             fallback_url: '',
           },
         },
-        url: 'https://google.com',
+        url: '',
         thumbnail: '',
         num_comments: 5,
       },
@@ -62,22 +72,24 @@ describe('RedditService', () => {
     it('should return a stream of an array', () => {
       expect(getGifsSpy.getLastValue()).toBeInstanceOf(Array);
     });
-
-    it('should trigger load method', () => {
-      jest.spyOn(service, 'loadGifs');
-      service.getGifs();
-      expect(service.loadGifs).toHaveBeenCalled();
-    });
   });
 
   describe('loadGifs()', () => {
     it('should cause new data to emit on getGifs() stream', () => {
       service.loadGifs();
+
+      const mockReq = httpMock.expectOne(api);
+      mockReq.flush(testResponse);
+
       expect(getGifsSpy.getLastValue()?.length).toBeGreaterThan(0);
     });
 
     it('should add additional data to getGifs() array every time it is called', () => {
       service.loadGifs();
+
+      const mockReq = httpMock.expectOne(api);
+      mockReq.flush(testResponse);
+
       service.loadGifs();
 
       const sizeBefore = getGifsSpy.getValueAt(
@@ -86,17 +98,27 @@ describe('RedditService', () => {
       const sizeAfter = getGifsSpy.getLastValue()?.length;
 
       expect(sizeAfter).toBeGreaterThan(sizeBefore);
+
+      // this test doesn't fail
+
+      expect(false).toBe(true);
     });
-  });
 
-  describe('fetchData()', () => {
-    it('should make a request to the reddit API', () => {});
-    it('should return the response from the convertRedditPostToGif method', () => {});
-  });
+    it('should convert src to mp4 format if the post is in .gifv format', () => {
+      testResponse.data.children[0].data.url = 'https://test.com/test.gifv';
 
-  describe('getBestSrcForGif()', () => {
-    let testData: RedditPost;
+      service.loadGifs();
 
-    beforeEach(() => {});
+      const mockReq = httpMock.expectOne(api);
+      mockReq.flush(testResponse);
+
+      const result = getGifsSpy.getLastValue();
+
+      expect(
+        result?.find((gif) => gif.src === 'https://test.com/test.mp4')
+      ).toBeTruthy();
+    });
+
+    // same for webm format
   });
 });

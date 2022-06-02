@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component } from '@angular/core';
+import { ChangeDetectionStrategy, Component, OnInit } from '@angular/core';
 import { RedditService } from '../shared/data-access/reddit.service';
 
 @Component({
@@ -7,8 +7,12 @@ import { RedditService } from '../shared/data-access/reddit.service';
   styleUrls: ['home.page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class HomePage {
+export class HomePage implements OnInit {
   gifs$ = this.redditService.getGifs();
 
   constructor(private redditService: RedditService) {}
+
+  ngOnInit() {
+    this.redditService.loadGifs();
+  }
 }
