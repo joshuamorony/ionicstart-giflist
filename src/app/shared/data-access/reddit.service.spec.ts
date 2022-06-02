@@ -92,16 +92,15 @@ describe('RedditService', () => {
 
       service.loadGifs();
 
+      const mockReqTwo = httpMock.expectOne(api);
+      mockReqTwo.flush(testResponse);
+
       const sizeBefore = getGifsSpy.getValueAt(
         getGifsSpy.getValuesLength() - 2
       ).length;
       const sizeAfter = getGifsSpy.getLastValue()?.length;
 
       expect(sizeAfter).toBeGreaterThan(sizeBefore);
-
-      // this test doesn't fail
-
-      expect(false).toBe(true);
     });
 
     it('should convert src to mp4 format if the post is in .gifv format', () => {
@@ -119,6 +118,65 @@ describe('RedditService', () => {
       ).toBeTruthy();
     });
 
-    // same for webm format
+    it('should convert src to mp4 format if the post is in .webm format', () => {
+      testResponse.data.children[0].data.url = 'https://test.com/test.webm';
+
+      service.loadGifs();
+
+      const mockReq = httpMock.expectOne(api);
+      mockReq.flush(testResponse);
+
+      const result = getGifsSpy.getLastValue();
+
+      expect(
+        result?.find((gif) => gif.src === 'https://test.com/test.mp4')
+      ).toBeTruthy();
+    });
+
+    it('should convert src to secure media if available, if gifv or webm not available', () => {
+      testResponse.data.children[0].data.secure_media.reddit_video.fallback_url =
+        'test';
+
+      service.loadGifs();
+
+      const mockReq = httpMock.expectOne(api);
+      mockReq.flush(testResponse);
+
+      const result = getGifsSpy.getLastValue();
+
+      expect(result?.find((gif) => gif.src === 'test')).toBeTruthy();
+    });
+
+    it('should convert src to media if available and none of the above available', () => {
+      testResponse.data.children[0].data.secure_media = null as any;
+      testResponse.data.children[0].data.media.reddit_video.fallback_url =
+        'test';
+
+      service.loadGifs();
+
+      const mockReq = httpMock.expectOne(api);
+      mockReq.flush(testResponse);
+
+      const result = getGifsSpy.getLastValue();
+
+      expect(result?.find((gif) => gif.src === 'test')).toBeTruthy();
+    });
+
+    it('should convert src to fallback url of preview if no media objects are available', () => {
+      testResponse.data.children[0].data.secure_media = null as any;
+      testResponse.data.children[0].data.media.reddit_video = null as any;
+      testResponse.data.children[0].data.preview.reddit_video_preview = {
+        fallback_url: 'test',
+      } as any;
+
+      service.loadGifs();
+
+      const mockReq = httpMock.expectOne(api);
+      mockReq.flush(testResponse);
+
+      const result = getGifsSpy.getLastValue();
+
+      expect(result?.find((gif) => gif.src === 'test')).toBeTruthy();
+    });
   });
 });
