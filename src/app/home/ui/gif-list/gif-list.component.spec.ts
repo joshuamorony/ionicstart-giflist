@@ -61,7 +61,22 @@ describe('GifListComponent', () => {
   });
 
   describe('playVideo()', () => {
-    it('should trigger loading the video if the video has not yet loaded', () => {});
+    const testGif = {} as any;
+
+    it('should trigger loading the video if the video has not yet loaded', () => {
+      const target: Partial<HTMLVideoElement> = {
+        readyState: 0,
+        load: jest.fn(),
+      };
+
+      const testEvent = {
+        target,
+      } as Event;
+
+      component.playVideo(testEvent, testGif);
+
+      expect(target.load).toHaveBeenCalled();
+    });
 
     it('should play the video once it has finished loading', () => {});
 

@@ -10,7 +10,12 @@ import { Gif } from '../../../shared/interfaces/gif';
 export class GifListComponent {
   @Input() gifs!: Gif[] | null;
 
-  playVideo(ev: Event) {
+  playVideo(ev: Event, gif: Gif) {
     const video = ev.target as HTMLVideoElement;
+
+    if (video.readyState === 4) {
+    } else {
+      video.load();
+    }
   }
 }
