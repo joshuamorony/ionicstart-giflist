@@ -1,4 +1,10 @@
-import { Component, ChangeDetectionStrategy, Input } from '@angular/core';
+import {
+  Component,
+  ChangeDetectionStrategy,
+  Input,
+  Output,
+  EventEmitter,
+} from '@angular/core';
 import { Gif } from '../../../shared/interfaces/gif';
 
 @Component({
@@ -9,6 +15,8 @@ import { Gif } from '../../../shared/interfaces/gif';
 })
 export class GifListComponent {
   @Input() gifs!: Gif[] | null;
+  @Output() gifLoadStart = new EventEmitter<string>();
+  @Output() gifLoadComplete = new EventEmitter<string>();
 
   playVideo(ev: Event, gif: Gif) {
     const video = ev.target as HTMLVideoElement;
@@ -16,10 +24,12 @@ export class GifListComponent {
     if (video.readyState === 4) {
     } else {
       if (video.getAttribute('data-event-loaddeddata') !== 'true') {
+        this.gifLoadStart.emit(gif.permalink);
         video.load();
 
-        const handleVideoLoaded = () => {
-          video.play();
+        const handleVideoLoaded = async () => {
+          await video.play();
+          this.gifLoadComplete.emit(gif.permalink);
           video.removeEventListener('loadeddata', handleVideoLoaded);
         };
 

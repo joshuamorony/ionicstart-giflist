@@ -1,6 +1,7 @@
 import { ChangeDetectionStrategy, Component, Input } from '@angular/core';
 import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 import { By } from '@angular/platform-browser';
+import { subscribeSpyTo } from '@hirez_io/observer-spy';
 import { IonicModule } from '@ionic/angular';
 import { Gif } from '../../../shared/interfaces/gif';
 
@@ -40,6 +41,75 @@ describe('GifListComponent', () => {
 
   it('should create', () => {
     expect(component).toBeTruthy();
+  });
+
+  describe('@Output() gifLoadStart', () => {
+    const testPermalink = 'test';
+
+    const testGif = {
+      permalink: testPermalink,
+    } as any;
+    let testEvent: Event;
+    let target: Partial<HTMLVideoElement>;
+
+    beforeEach(() => {
+      target = {
+        readyState: 0,
+        load: jest.fn(),
+        play: jest.fn(),
+        addEventListener: jest.fn(),
+        removeEventListener: jest.fn(),
+        setAttribute: jest.fn(),
+        getAttribute: jest.fn(),
+      };
+
+      testEvent = {
+        target,
+      } as Event;
+    });
+
+    it('should emit with permalink once a load is triggered', () => {
+      const observerSpy = subscribeSpyTo(component.gifLoadStart);
+      component.playVideo(testEvent, testGif);
+      expect(observerSpy.getLastValue()).toEqual(testPermalink);
+    });
+  });
+
+  describe('@Output() gifLoadComplete', () => {
+    const testPermalink = 'test';
+
+    const testGif = {
+      permalink: testPermalink,
+    } as any;
+    let testEvent: Event;
+    let target: Partial<HTMLVideoElement>;
+
+    beforeEach(() => {
+      target = {
+        readyState: 0,
+        load: jest.fn(),
+        play: jest.fn(),
+        addEventListener: jest.fn(),
+        removeEventListener: jest.fn(),
+        setAttribute: jest.fn(),
+        getAttribute: jest.fn(),
+      };
+
+      testEvent = {
+        target,
+      } as Event;
+    });
+
+    it('should emit with permalink once a load has finished', async () => {
+      const observerSpy = subscribeSpyTo(component.gifLoadComplete);
+
+      component.playVideo(testEvent, testGif);
+      const addEventListener = target.addEventListener as jest.Mock;
+      const handler = addEventListener.mock.calls[0][1];
+      await handler();
+
+      expect(observerSpy.getLastValue()).toEqual(testPermalink);
+    });
   });
 
   describe('@Input() gifs', () => {
@@ -114,10 +184,6 @@ describe('GifListComponent', () => {
       component.playVideo(testEvent, testGif);
       expect(target.load).not.toHaveBeenCalled();
     });
-
-    it('should set the gifs loading state to true once a load is triggered', () => {});
-
-    it('should set the gifs loading state to false and dataLoaded state to true once a load has finished', () => {});
 
     it('should play the video if it is paused', () => {});
 
