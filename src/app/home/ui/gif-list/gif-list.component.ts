@@ -9,4 +9,8 @@ import { Gif } from '../../../shared/interfaces/gif';
 })
 export class GifListComponent {
   @Input() gifs!: Gif[] | null;
+
+  playVideo(ev: Event) {
+    const video = ev.target as HTMLVideoElement;
+  }
 }

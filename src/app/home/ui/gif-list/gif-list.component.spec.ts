@@ -50,5 +50,31 @@ describe('GifListComponent', () => {
 
       expect(gifItems.length).toEqual(testGifs.length);
     });
+
+    it('should set preload attribute to false for video', () => {
+      const testVideo = fixture.debugElement.query(
+        By.css('[data-test="gif-list-item"] video')
+      );
+
+      expect(testVideo.attributes.preload).toEqual('none');
+    });
+  });
+
+  describe('playVideo()', () => {
+    it('should trigger loading the video if the video has not yet loaded', () => {});
+
+    it('should play the video once it has finished loading', () => {});
+
+    it('should add the data-event-loadeddata attribute once a load is triggered', () => {});
+
+    it('should not attempt to load the video if the data-event-loadeddata attribute is present', () => {});
+
+    it('should set the gifs loading state to true once a load is triggered', () => {});
+
+    it('should set the gifs loading state to false and dataLoaded state to true once a load has finished', () => {});
+
+    it('should play the video if it is paused', () => {});
+
+    it('should pause the video if it is playing', () => {});
   });
 });
