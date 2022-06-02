@@ -4,7 +4,7 @@
     detail="false"
     *ngFor="let gif of gifs"
     data-test="gif-list-item"
-    (click)="playVideo($event)"
+    (click)="playVideo($event, gif)"
   >
     <video [src]="gif.src" preload="none"></video>
     <ion-label>{{ gif.title }}</ion-label>

@@ -16,6 +16,13 @@ export class GifListComponent {
     if (video.readyState === 4) {
     } else {
       video.load();
+
+      const handleVideoLoaded = () => {
+        video.play();
+        video.removeEventListener('loadeddata', handleVideoLoaded);
+      };
+
+      video.addEventListener('loadeddata', handleVideoLoaded);
     }
   }
 }
