@@ -32,4 +32,6 @@ describe('HomePage', () => {
 
     expect(redditService.loadGifs).toHaveBeenCalled();
   });
+
+  // handle setting loading and dataloaded
 });

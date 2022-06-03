@@ -22,6 +22,11 @@ export class GifListComponent {
     const video = ev.target as HTMLVideoElement;
 
     if (video.readyState === 4) {
+      if (video.paused) {
+        video.play();
+      } else {
+        video.pause();
+      }
     } else {
       if (video.getAttribute('data-event-loaddeddata') !== 'true') {
         this.gifLoadStart.emit(gif.permalink);

@@ -137,9 +137,11 @@ describe('GifListComponent', () => {
 
     beforeEach(() => {
       target = {
+        paused: false,
         readyState: 0,
         load: jest.fn(),
         play: jest.fn(),
+        pause: jest.fn(),
         addEventListener: jest.fn(),
         removeEventListener: jest.fn(),
         setAttribute: jest.fn(),
@@ -185,8 +187,17 @@ describe('GifListComponent', () => {
       expect(target.load).not.toHaveBeenCalled();
     });
 
-    it('should play the video if it is paused', () => {});
+    it('should play the video if it is paused', () => {
+      (target.readyState as number) = 4;
+      (target.paused as boolean) = true;
+      component.playVideo(testEvent, testGif);
+      expect(target.play).toHaveBeenCalled();
+    });
 
-    it('should pause the video if it is playing', () => {});
+    it('should pause the video if it is playing', () => {
+      (target.readyState as number) = 4;
+      component.playVideo(testEvent, testGif);
+      expect(target.pause).toHaveBeenCalled();
+    });
   });
 });
