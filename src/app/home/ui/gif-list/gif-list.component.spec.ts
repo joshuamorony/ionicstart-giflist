@@ -1,4 +1,10 @@
-import { ChangeDetectionStrategy, Component, Input } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  EventEmitter,
+  Input,
+  Output,
+} from '@angular/core';
 import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 import { By } from '@angular/platform-browser';
 import { subscribeSpyTo } from '@hirez_io/observer-spy';
@@ -13,6 +19,8 @@ import { GifListComponent } from './gif-list.component';
 })
 export class MockGifListComponent {
   @Input() gifs!: Gif[];
+  @Output() gifLoadStart = new EventEmitter();
+  @Output() gifLoadComplete = new EventEmitter();
 }
 
 describe('GifListComponent', () => {

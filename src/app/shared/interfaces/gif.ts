@@ -7,4 +7,5 @@ export interface Gif {
   thumbnail: string;
   comments: number;
   loading?: boolean;
+  dataLoaded?: boolean;
 }
