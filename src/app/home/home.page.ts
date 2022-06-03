@@ -11,17 +11,19 @@ import { RedditService } from '../shared/data-access/reddit.service';
 })
 export class HomePage implements OnInit {
   currentlyLoadingGifs$ = new BehaviorSubject<string[]>([]);
+  loadedGifs$ = new BehaviorSubject<string[]>([]);
+
   gifs$ = combineLatest([
     this.redditService.getGifs(),
     this.currentlyLoadingGifs$,
+    this.loadedGifs$,
   ]).pipe(
-    // If the gifs permalink is in the currentlyLoading array, set loading to true
-    map(([gifs, currentlyLoadingGifs]) =>
-      gifs.map((gif) =>
-        currentlyLoadingGifs.includes(gif.permalink)
-          ? { ...gif, loading: true }
-          : gif
-      )
+    map(([gifs, currentlyLoadingGifs, loadedGifs]) =>
+      gifs.map((gif) => ({
+        ...gif,
+        loading: currentlyLoadingGifs.includes(gif.permalink),
+        dataLoaded: loadedGifs.includes(gif.permalink),
+      }))
     )
   );
 
@@ -39,10 +41,12 @@ export class HomePage implements OnInit {
     ]);
   }
 
-  removeLoading(permalinkToRemove: string) {
+  setLoadingComplete(permalinkToComplete: string) {
+    this.loadedGifs$.next([...this.loadedGifs$.value, permalinkToComplete]);
+
     this.currentlyLoadingGifs$.next([
       ...this.currentlyLoadingGifs$.value.filter(
-        (permalink) => permalink !== permalinkToRemove
+        (permalink) => !this.loadedGifs$.value.includes(permalink)
       ),
     ]);
   }

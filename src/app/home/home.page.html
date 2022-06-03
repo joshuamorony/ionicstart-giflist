@@ -8,6 +8,6 @@
   <app-gif-list
     [gifs]="gifs$ | async"
     (gifLoadStart)="setLoading($event)"
-    (gifLoadComplete)="removeLoading($event)"
+    (gifLoadComplete)="setLoadingComplete($event)"
   ></app-gif-list>
 </ion-content>
