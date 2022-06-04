@@ -4,4 +4,4 @@ export const navigateToHomePage = () => {
 
 export const getListItems = () => cy.get('[data-test="gif-list-item"]');
 
-export const getVideo = () => cy.get('[data-test="gif-video"] video');
+export const getVideo = () => cy.get('[data-test="gif-list-item"] video');
