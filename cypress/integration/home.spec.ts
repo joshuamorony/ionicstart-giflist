@@ -19,7 +19,7 @@ describe('Home', () => {
         element.on('playing', cy.stub().as('playing'));
       });
 
-    getListItems().first().click();
+    getVideo().first().click();
 
     cy.get('@playing').should('have.been.called');
   });
