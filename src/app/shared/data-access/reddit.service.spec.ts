@@ -120,6 +120,21 @@ describe('RedditService', () => {
       expect(result?.length).toBeLessThan(lengthWithNoPostFiltered);
     });
 
+    it('should leave src unchanged if already in mp4 format', () => {
+      testResponse.data.children[0].data.url = 'https://test.com/test.mp4';
+
+      service.loadGifs();
+
+      const mockReq = httpMock.expectOne(api);
+      mockReq.flush(testResponse);
+
+      const result = getGifsSpy.getLastValue();
+
+      expect(
+        result?.find((gif) => gif.src === 'https://test.com/test.mp4')
+      ).toBeTruthy();
+    });
+
     it('should convert src to mp4 format if the post is in .gifv format', () => {
       testResponse.data.children[0].data.url = 'https://test.com/test.gifv';
 

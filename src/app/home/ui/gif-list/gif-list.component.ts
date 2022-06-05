@@ -20,6 +20,8 @@ export class GifListComponent {
 
   playVideo(ev: Event, gif: Gif) {
     const video = ev.target as HTMLVideoElement;
+    console.log(ev);
+    console.log(gif);
 
     if (video.readyState === 4) {
       if (video.paused) {
@@ -42,5 +44,9 @@ export class GifListComponent {
         video.setAttribute('data-event-loadeddata', 'true');
       }
     }
+  }
+
+  trackByFn(gif: Gif) {
+    return gif.permalink;
   }
 }

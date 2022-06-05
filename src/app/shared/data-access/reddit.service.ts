@@ -45,6 +45,11 @@ export class RedditService {
   }
 
   private getBestSrcForGif(post: RedditPost) {
+    // If the source is in .mp4 format, leave unchanged
+    if (post.data.url.indexOf('.mp4') > -1) {
+      return post.data.url;
+    }
+
     // If the source is in .gifv or .webm formats, convert to .mp4 and return
     if (post.data.url.indexOf('.gifv') > -1) {
       return post.data.url.replace('.gifv', '.mp4');
