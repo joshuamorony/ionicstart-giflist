@@ -29,5 +29,11 @@
       </div>
       <ion-label>{{ gif.title }}</ion-label>
     </ion-item>
+    <ion-list-header>
+      <ion-label> {{ gif.title }} </ion-label>
+      <ion-button data-test="gif-comments-button" (click)="showComments(gif)">
+        <ion-icon name="chatbubbles"></ion-icon> {{ gif.comments }}
+      </ion-button>
+    </ion-list-header>
   </div>
 </ion-list>

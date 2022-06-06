@@ -5,6 +5,7 @@ import {
   Output,
   EventEmitter,
 } from '@angular/core';
+import { Browser } from '@capacitor/browser';
 import { Gif } from '../../../shared/interfaces/gif';
 
 @Component({
@@ -42,6 +43,14 @@ export class GifListComponent {
         video.setAttribute('data-event-loadeddata', 'true');
       }
     }
+  }
+
+  showComments(gif: Gif) {
+    Browser.open({
+      toolbarColor: '#fff',
+      url: `https://reddit.com/${gif.permalink}`,
+      windowName: '_system',
+    });
   }
 
   trackByFn(index: number, gif: Gif) {

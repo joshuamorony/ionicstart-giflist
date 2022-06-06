@@ -1,4 +1,9 @@
-import { getListItems, getVideo, navigateToHomePage } from '../support/utils';
+import {
+  getCommentsButton,
+  getListItems,
+  getVideo,
+  navigateToHomePage,
+} from '../support/utils';
 
 describe('Home', () => {
   beforeEach(() => {
@@ -22,5 +27,10 @@ describe('Home', () => {
     getVideo().first().click();
 
     cy.get('@playing').should('have.been.called');
+  });
+
+  it('should be able to click comments button to open the source reddit thread for the gif', () => {
+    getCommentsButton().first().click();
+    cy.window().its('open').should('be.called');
   });
 });

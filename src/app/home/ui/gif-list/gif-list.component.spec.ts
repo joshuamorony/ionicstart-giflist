@@ -7,6 +7,7 @@ import {
 } from '@angular/core';
 import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 import { By } from '@angular/platform-browser';
+import { Browser } from '@capacitor/browser';
 import { subscribeSpyTo } from '@hirez_io/observer-spy';
 import { IonicModule } from '@ionic/angular';
 import { Gif } from '../../../shared/interfaces/gif';
@@ -23,11 +24,17 @@ export class MockGifListComponent {
   @Output() gifLoadComplete = new EventEmitter();
 }
 
+jest.mock('@capacitor/browser');
+
 describe('GifListComponent', () => {
   let component: GifListComponent;
   let fixture: ComponentFixture<GifListComponent>;
 
-  const testGifs = [{}, {}, {}] as any[];
+  const testGifs = [
+    { permalink: 'test' },
+    { permalink: 'test' },
+    { permalink: 'test' },
+  ] as any[];
 
   beforeEach(waitForAsync(() => {
     TestBed.configureTestingModule({
@@ -49,6 +56,22 @@ describe('GifListComponent', () => {
 
   it('should create', () => {
     expect(component).toBeTruthy();
+  });
+
+  it('should open permalink of gif when comments button clicked', () => {
+    const commentsButton = fixture.debugElement.query(
+      By.css('[data-test="gif-comments-button"]')
+    );
+
+    Browser.open = jest.fn();
+
+    commentsButton.nativeElement.click();
+
+    expect(Browser.open).toHaveBeenCalledWith(
+      expect.objectContaining({
+        url: `https://reddit.com/${testGifs[0].permalink}`,
+      })
+    );
   });
 
   describe('@Output() gifLoadStart', () => {
