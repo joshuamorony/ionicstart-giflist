@@ -1,6 +1,6 @@
 import { ChangeDetectionStrategy, Component, Input } from '@angular/core';
 import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
-import { FormControl } from '@angular/forms';
+import { FormControl, ReactiveFormsModule } from '@angular/forms';
 import { By } from '@angular/platform-browser';
 import { IonicModule } from '@ionic/angular';
 
@@ -21,7 +21,7 @@ describe('SearchBarComponent', () => {
   beforeEach(waitForAsync(() => {
     TestBed.configureTestingModule({
       declarations: [SearchBarComponent],
-      imports: [IonicModule.forRoot()],
+      imports: [IonicModule.forRoot(), ReactiveFormsModule],
     })
       .overrideComponent(SearchBarComponent, {
         set: {
