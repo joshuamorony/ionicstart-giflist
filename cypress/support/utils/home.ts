@@ -15,3 +15,6 @@ export const getVideo = () => cy.get('[data-test="gif-list-item"] video');
 
 export const getCommentsButton = () =>
   cy.get('[data-test="gif-comments-button"]');
+
+export const getSubredditBar = () =>
+  cy.get('[data-test="subreddit-bar"] input');

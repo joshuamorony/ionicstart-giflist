@@ -4,13 +4,17 @@ import {
   getListItems,
   getVideo,
   navigateToHomePage,
+  getSubredditBar,
 } from '../support/utils';
 
 describe('Home', () => {
   beforeEach(() => {
-    cy.intercept('GET', '**/.json?limit=100', {
-      fixture: 'reddit.json',
+    cy.intercept('GET', '**/gifs/hot/.json?limit=100*', {
+      fixture: 'reddit-gifs.json',
     }).as('redditData');
+    cy.intercept('GET', '**/chemicalreactiongifs/hot/.json?limit=100*', {
+      fixture: 'reddit-gifs.json',
+    }).as('redditDataTwo');
     navigateToHomePage();
   });
 
@@ -52,5 +56,10 @@ describe('Home', () => {
         expect(lengthAfter > lengthBefore).to.be.true;
       });
     });
+  });
+
+  it('should be able to change subreddits by typing in the bar', () => {
+    getSubredditBar().type('chemicalreactiongifs');
+    cy.wait('@redditDataTwo');
   });
 });
