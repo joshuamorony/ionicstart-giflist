@@ -7,6 +7,7 @@ import { RedditService } from '../shared/data-access/reddit.service';
 
 import { HomePage } from './home.page';
 import { MockGifListComponent } from './ui/gif-list/gif-list.component.spec';
+import { MockSearchBarComponent } from './ui/search-bar/search-bar.component.spec';
 
 describe('HomePage', () => {
   let component: HomePage;
@@ -22,7 +23,7 @@ describe('HomePage', () => {
 
   beforeEach(waitForAsync(() => {
     TestBed.configureTestingModule({
-      declarations: [HomePage, MockGifListComponent],
+      declarations: [HomePage, MockGifListComponent, MockSearchBarComponent],
       imports: [IonicModule.forRoot()],
       providers: [
         {
