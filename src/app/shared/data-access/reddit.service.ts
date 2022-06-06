@@ -19,7 +19,7 @@ export class RedditService {
     return this.gifs$.asObservable();
   }
 
-  loadGifs() {
+  loadGifs(infiniteScrollEvent?: Event) {
     this.http
       .get<RedditResponse>(this.api)
       .pipe(

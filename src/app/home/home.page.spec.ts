@@ -37,6 +37,7 @@ describe('HomePage', () => {
 
     fixture = TestBed.createComponent(HomePage);
     component = fixture.componentInstance;
+
     fixture.detectChanges();
   }));
 
@@ -86,5 +87,21 @@ describe('HomePage', () => {
     const gif = observerSpy.getLastValue()[0];
 
     expect(gif.dataLoaded).toBe(true);
+  });
+
+  describe('infinite scroll', () => {
+    it('should call the loadGifs method in the reddit service when infinite scroll is triggered', () => {
+      const redditService = fixture.debugElement.injector.get(RedditService);
+
+      const infiniteElement = fixture.debugElement.query(
+        By.css('ion-infinite-scroll')
+      );
+
+      const fakeInfiniteEvent = 'test';
+
+      infiniteElement.triggerEventHandler('ionInfinite', fakeInfiniteEvent);
+
+      expect(redditService.loadGifs).toHaveBeenCalledWith(fakeInfiniteEvent);
+    });
   });
 });

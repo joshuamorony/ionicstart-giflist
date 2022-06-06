@@ -50,4 +50,8 @@ export class HomePage implements OnInit {
       ),
     ]);
   }
+
+  loadMore(ev: Event) {
+    this.redditService.loadGifs(ev);
+  }
 }
