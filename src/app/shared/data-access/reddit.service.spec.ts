@@ -30,7 +30,7 @@ describe('RedditService', () => {
     const testData: RedditPost = {
       data: {
         author: 'Josh',
-        name: 'some cool post',
+        name: 'somecoolpost',
         permalink: 'https://google.com',
         preview: {
           reddit_video_preview: {
@@ -92,7 +92,7 @@ describe('RedditService', () => {
 
       service.loadGifs();
 
-      const mockReqTwo = httpMock.expectOne(api);
+      const mockReqTwo = httpMock.expectOne((req) => req.url.includes(api));
       mockReqTwo.flush(testResponse);
 
       const sizeBefore = getGifsSpy.getValueAt(
@@ -101,6 +101,22 @@ describe('RedditService', () => {
       const sizeAfter = getGifsSpy.getLastValue()?.length;
 
       expect(sizeAfter).toBeGreaterThan(sizeBefore);
+    });
+
+    it('should add the after parameter set to the name of the previous last gif if additional gifs are being loaded', () => {
+      service.loadGifs();
+
+      const mockReq = httpMock.expectOne(api);
+      mockReq.flush(testResponse);
+
+      const lastGifName =
+        testResponse.data.children[testResponse.data.children.length - 1].data
+          .name;
+
+      service.loadGifs();
+
+      const mockReqTwo = httpMock.expectOne(api + `&after=${lastGifName}`);
+      mockReqTwo.flush(testResponse);
     });
 
     it('should call complete method on infinite scroll target if supplied once data has loaded', () => {

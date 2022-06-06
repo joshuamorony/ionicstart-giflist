@@ -2,15 +2,21 @@ import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { BehaviorSubject } from 'rxjs';
 import { map } from 'rxjs/operators';
-import { Gif } from '../interfaces/gif';
-import { RedditPost } from '../interfaces/reddit-post';
-import { RedditResponse } from '../interfaces/reddit-response';
+import {
+  Gif,
+  RedditPagination,
+  RedditPost,
+  RedditResponse,
+} from '../interfaces';
 
 @Injectable({
   providedIn: 'root',
 })
 export class RedditService {
   private gifs$ = new BehaviorSubject<Gif[]>([]);
+  private paginationState: RedditPagination = {
+    after: null,
+  };
   private api = `https://www.reddit.com/r/gifs/hot/.json?limit=100`;
 
   constructor(private http: HttpClient) {}
@@ -21,13 +27,21 @@ export class RedditService {
 
   loadGifs(infiniteScrollEvent?: Event) {
     this.http
-      .get<RedditResponse>(this.api)
+      .get<RedditResponse>(
+        this.paginationState.after
+          ? this.api + `&after=${this.paginationState.after}`
+          : this.api
+      )
       .pipe(
         map((res) => this.convertRedditPostsToGifs(res.data.children)),
         map((gifs) => gifs.filter((gif) => gif.src !== null))
       )
       .subscribe((gifs) => {
         this.gifs$.next([...this.gifs$.value, ...gifs]);
+
+        this.paginationState = {
+          after: gifs[gifs.length - 1].name,
+        };
 
         if (infiniteScrollEvent) {
           const infiniteElement =

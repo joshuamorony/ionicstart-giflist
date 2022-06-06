@@ -6,7 +6,7 @@ import {
   EventEmitter,
 } from '@angular/core';
 import { Browser } from '@capacitor/browser';
-import { Gif } from '../../../shared/interfaces/gif';
+import { Gif } from '../../../shared/interfaces';
 
 @Component({
   selector: 'app-gif-list',
