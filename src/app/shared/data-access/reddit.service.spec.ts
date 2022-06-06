@@ -103,6 +103,21 @@ describe('RedditService', () => {
       expect(sizeAfter).toBeGreaterThan(sizeBefore);
     });
 
+    it('should call complete method on infinite scroll target if supplied once data has loaded', () => {
+      const fakeInfiniteEvent = {
+        target: {
+          complete: jest.fn(),
+        },
+      } as any;
+
+      service.loadGifs(fakeInfiniteEvent);
+
+      const mockReq = httpMock.expectOne(api);
+      mockReq.flush(testResponse);
+
+      expect(fakeInfiniteEvent.target.complete).toHaveBeenCalled();
+    });
+
     it('should filter out any gifs that do not have a useable src property', () => {
       testResponse.data.children[0].data.secure_media = null as any;
       testResponse.data.children[0].data.media.reddit_video = null as any;

@@ -28,6 +28,12 @@ export class RedditService {
       )
       .subscribe((gifs) => {
         this.gifs$.next([...this.gifs$.value, ...gifs]);
+
+        if (infiniteScrollEvent) {
+          const infiniteElement =
+            infiniteScrollEvent.target as HTMLIonInfiniteScrollElement;
+          infiniteElement.complete();
+        }
       });
   }
 
