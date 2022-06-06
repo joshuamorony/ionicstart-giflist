@@ -10,7 +10,7 @@ describe('Home', () => {
   beforeEach(() => {
     cy.intercept('GET', '**/.json?limit=100', {
       fixture: 'reddit.json',
-    });
+    }).as('redditData');
     navigateToHomePage();
   });
 
@@ -37,14 +37,17 @@ describe('Home', () => {
 
   it('should be able to scroll to bottom load more videos', () => {
     // Wait for initial load
-    getListItems().should('have.length.above', 0);
+    cy.wait('@redditData');
 
     getListItems().then((elements) => {
       const lengthBefore = elements.length;
       getScrollableContent().scrollTo('bottom');
 
+      cy.wait('@redditData');
+
       getListItems().then((elementsAfter) => {
         const lengthAfter = elementsAfter.length;
+
         // eslint-disable-next-line @typescript-eslint/no-unused-expressions
         expect(lengthAfter > lengthBefore).to.be.true;
       });
