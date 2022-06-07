@@ -56,6 +56,15 @@ describe('SettingsComponent', () => {
       expect(input.componentInstance.value).toEqual(testValue);
     });
 
-    it('should bind posts per page input', () => {});
+    it('should bind posts per page input', () => {
+      const testValue = '30';
+      component.settingsForm.get('perPage')?.setValue(testValue);
+
+      fixture.detectChanges();
+
+      const input = fixture.debugElement.query(By.css('[data-test="perPage"]'));
+
+      expect(input.componentInstance.value).toEqual(testValue);
+    });
   });
 });

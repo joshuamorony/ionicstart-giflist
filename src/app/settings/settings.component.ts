@@ -11,6 +11,7 @@ export class SettingsComponent {
   settingsForm = this.fb.group({
     subreddit: this.fb.control(''),
     sort: this.fb.control(''),
+    perPage: this.fb.control(10),
   });
 
   constructor(private fb: FormBuilder) {}
