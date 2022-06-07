@@ -13,5 +13,10 @@
       placeholder="subreddit..."
       formControlName="subreddit"
     ></ion-input>
+
+    <ion-segment color="primary" data-test="sort" formControlName="sort">
+      <ion-segment-button value="hot"> Hot </ion-segment-button>
+      <ion-segment-button value="new"> New </ion-segment-button>
+    </ion-segment>
   </form>
 </ion-content>

@@ -38,15 +38,24 @@ describe('SettingsComponent', () => {
 
       fixture.detectChanges();
 
-      const subredditInput = fixture.debugElement.query(
+      const input = fixture.debugElement.query(
         By.css('[data-test="default-subreddit"]')
       );
 
-      expect(subredditInput.componentInstance.value).toEqual(testValue);
+      expect(input.componentInstance.value).toEqual(testValue);
+    });
+
+    it('should bind sort input', () => {
+      const testValue = 'new';
+      component.settingsForm.get('sort')?.setValue(testValue);
+
+      fixture.detectChanges();
+
+      const input = fixture.debugElement.query(By.css('[data-test="sort"]'));
+
+      expect(input.componentInstance.value).toEqual(testValue);
     });
 
     it('should bind posts per page input', () => {});
-
-    it('should bind sort input', () => {});
   });
 });

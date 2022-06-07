@@ -10,6 +10,7 @@ import { FormBuilder } from '@angular/forms';
 export class SettingsComponent {
   settingsForm = this.fb.group({
     subreddit: this.fb.control(''),
+    sort: this.fb.control(''),
   });
 
   constructor(private fb: FormBuilder) {}
