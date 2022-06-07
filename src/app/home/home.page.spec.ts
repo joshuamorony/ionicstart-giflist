@@ -2,7 +2,7 @@ import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 import { By } from '@angular/platform-browser';
 import { subscribeSpyTo } from '@hirez_io/observer-spy';
 import { IonicModule } from '@ionic/angular';
-import { of } from 'rxjs';
+import { BehaviorSubject, of } from 'rxjs';
 import { RedditService } from '../shared/data-access/reddit.service';
 
 import { HomePage } from './home.page';
@@ -31,6 +31,7 @@ describe('HomePage', () => {
           useValue: {
             getGifs: jest.fn().mockReturnValue(of(testGifs)),
             loadGifs: jest.fn(),
+            reset: jest.fn(),
           },
         },
       ],
@@ -38,6 +39,10 @@ describe('HomePage', () => {
 
     fixture = TestBed.createComponent(HomePage);
     component = fixture.componentInstance;
+
+    component.subredditFormControl = {
+      valueChanges: new BehaviorSubject(''),
+    } as any;
 
     fixture.detectChanges();
   }));
@@ -88,6 +93,15 @@ describe('HomePage', () => {
     const gif = observerSpy.getLastValue()[0];
 
     expect(gif.dataLoaded).toBe(true);
+  });
+
+  it('should call the reset method of the reddit service with the new subreddit when the value changes', () => {
+    const redditService = fixture.debugElement.injector.get(RedditService);
+    const testSubreddit = 'test';
+
+    (component.subredditFormControl.valueChanges as any).next(testSubreddit);
+
+    expect(redditService.reset).toHaveBeenCalledWith(testSubreddit);
   });
 
   describe('infinite scroll', () => {

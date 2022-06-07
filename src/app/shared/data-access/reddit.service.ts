@@ -51,6 +51,8 @@ export class RedditService {
       });
   }
 
+  reset(subreddit: string) {}
+
   private convertRedditPostsToGifs(posts: RedditPost[]) {
     return posts.map((post) => ({
       src: this.getBestSrcForGif(post),

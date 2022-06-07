@@ -1,6 +1,12 @@
-import { ChangeDetectionStrategy, Component, OnInit } from '@angular/core';
-import { BehaviorSubject, combineLatest } from 'rxjs';
-import { map } from 'rxjs/operators';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  OnDestroy,
+  OnInit,
+} from '@angular/core';
+import { FormControl } from '@angular/forms';
+import { BehaviorSubject, combineLatest, Subject } from 'rxjs';
+import { map, takeUntil } from 'rxjs/operators';
 import { RedditService } from '../shared/data-access/reddit.service';
 
 @Component({
@@ -9,7 +15,7 @@ import { RedditService } from '../shared/data-access/reddit.service';
   styleUrls: ['home.page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class HomePage implements OnInit {
+export class HomePage implements OnInit, OnDestroy {
   currentlyLoadingGifs$ = new BehaviorSubject<string[]>([]);
   loadedGifs$ = new BehaviorSubject<string[]>([]);
 
@@ -27,10 +33,21 @@ export class HomePage implements OnInit {
     )
   );
 
+  subredditFormControl = new FormControl('');
+
+  private destroy$ = new Subject<boolean>();
+
   constructor(private redditService: RedditService) {}
 
   ngOnInit() {
     this.redditService.loadGifs();
+    this.subredditFormControl.valueChanges
+      .pipe(takeUntil(this.destroy$))
+      .subscribe((subreddit) => this.redditService.reset(subreddit));
+  }
+
+  ngOnDestroy() {
+    this.destroy$.next(true);
   }
 
   setLoading(permalink: string) {
