@@ -38,6 +38,8 @@ export class HomePage implements OnInit, OnDestroy {
     )
   );
 
+  settingsModalIsOpen$ = new BehaviorSubject<boolean>(false);
+
   subredditFormControl = new FormControl('');
 
   private destroy$ = new Subject<boolean>();

@@ -3,6 +3,14 @@
     <app-search-bar
       [subredditFormControl]="subredditFormControl"
     ></app-search-bar>
+    <ion-buttons slot="end">
+      <ion-button
+        data-test="settings-button"
+        (click)="settingsModalIsOpen$.next(true)"
+      >
+        <ion-icon slot="icon-only" name="settings"></ion-icon>
+      </ion-button>
+    </ion-buttons>
   </ion-toolbar>
 </ion-header>
 
@@ -21,3 +29,12 @@
     </ion-infinite-scroll-content>
   </ion-infinite-scroll>
 </ion-content>
+
+<ion-modal
+  [isOpen]="settingsModalIsOpen$ | async"
+  (ionModalDidDismiss)="settingsModalIsOpen$.next(false)"
+>
+  <ng-template>
+    <app-settings></app-settings>
+  </ng-template>
+</ion-modal>

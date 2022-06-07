@@ -9,6 +9,7 @@ import { By } from '@angular/platform-browser';
 import { subscribeSpyTo } from '@hirez_io/observer-spy';
 import { IonicModule } from '@ionic/angular';
 import { BehaviorSubject, of } from 'rxjs';
+import { MockSettingsComponent } from '../settings/settings.component.spec';
 import { RedditService } from '../shared/data-access/reddit.service';
 
 import { HomePage } from './home.page';
@@ -29,7 +30,12 @@ describe('HomePage', () => {
 
   beforeEach(waitForAsync(() => {
     TestBed.configureTestingModule({
-      declarations: [HomePage, MockGifListComponent, MockSearchBarComponent],
+      declarations: [
+        HomePage,
+        MockGifListComponent,
+        MockSearchBarComponent,
+        MockSettingsComponent,
+      ],
       imports: [IonicModule.forRoot()],
       providers: [
         {
@@ -112,6 +118,44 @@ describe('HomePage', () => {
 
     expect(redditService.reset).toHaveBeenCalledWith(testSubreddit);
   }));
+
+  describe('settings modal', () => {
+    it('should open the settings modal when the settings button is clicked', () => {
+      const settingsButton = fixture.debugElement.query(
+        By.css('[data-test="settings-button"]')
+      );
+
+      settingsButton.nativeElement.click();
+
+      fixture.detectChanges();
+
+      const settingsModal = fixture.debugElement.query(By.css('ion-modal'));
+      expect(settingsModal.componentInstance.isOpen).toBe(true);
+    });
+
+    it('should close the settings modal when the modals ionModalDidDismiss emits', () => {
+      const settingsButton = fixture.debugElement.query(
+        By.css('[data-test="settings-button"]')
+      );
+
+      settingsButton.nativeElement.click();
+
+      fixture.detectChanges();
+
+      const settingsModal = fixture.debugElement.query(By.css('ion-modal'));
+      expect(settingsModal.componentInstance.isOpen).toBe(true);
+
+      settingsModal.triggerEventHandler('ionModalDidDismiss', true);
+
+      fixture.detectChanges();
+
+      const settingsModalAfter = fixture.debugElement.query(
+        By.css('ion-modal')
+      );
+
+      expect(settingsModalAfter.componentInstance.isOpen).toBe(false);
+    });
+  });
 
   describe('infinite scroll', () => {
     it('should call the loadGifs method in the reddit service when infinite scroll is triggered', () => {
