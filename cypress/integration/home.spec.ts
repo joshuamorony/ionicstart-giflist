@@ -13,7 +13,7 @@ describe('Home', () => {
       fixture: 'reddit-gifs.json',
     }).as('redditData');
     cy.intercept('GET', '**/chemicalreactiongifs/hot/.json?limit=100*', {
-      fixture: 'reddit-gifs.json',
+      fixture: 'reddit-chemical.json',
     }).as('redditDataTwo');
     navigateToHomePage();
   });

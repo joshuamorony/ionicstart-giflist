@@ -18,3 +18,5 @@ export const getCommentsButton = () =>
 
 export const getSubredditBar = () =>
   cy.get('[data-test="subreddit-bar"] input');
+
+export const getSettingsButton = () => cy.get('[data-test="settings-button"]');
