@@ -242,4 +242,31 @@ describe('RedditService', () => {
       expect(result?.find((gif) => gif.src === 'test')).toBeTruthy();
     });
   });
+
+  describe('reset()', () => {
+    it('should make a request to the API for the subreddit supplied', () => {
+      const testSubreddit = 'test';
+      service.reset(testSubreddit);
+
+      const mockReq = httpMock.expectOne(api.replace('gifs', testSubreddit));
+      mockReq.flush(testResponse);
+    });
+
+    it('should emit the returned data on getGifs stream, clearing all other data', () => {
+      service.loadGifs();
+
+      const mockReq = httpMock.expectOne(api);
+      mockReq.flush(testResponse);
+
+      const testSubreddit = 'test';
+      service.reset(testSubreddit);
+
+      const mockReqTwo = httpMock.expectOne(api.replace('gifs', testSubreddit));
+      mockReqTwo.flush(testResponse);
+
+      expect(getGifsSpy.getLastValue()?.length).toEqual(
+        testResponse.data.children.length
+      );
+    });
+  });
 });

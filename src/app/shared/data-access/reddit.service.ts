@@ -7,6 +7,7 @@ import {
   RedditPagination,
   RedditPost,
   RedditResponse,
+  Settings,
 } from '../interfaces';
 
 @Injectable({
@@ -17,7 +18,9 @@ export class RedditService {
   private paginationState: RedditPagination = {
     after: null,
   };
-  private api = `https://www.reddit.com/r/gifs/hot/.json?limit=100`;
+  private settings: Settings = {
+    subreddit: 'gifs',
+  };
 
   constructor(private http: HttpClient) {}
 
@@ -26,11 +29,13 @@ export class RedditService {
   }
 
   loadGifs(infiniteScrollEvent?: Event) {
+    const api = `https://www.reddit.com/r/${this.settings.subreddit}/hot/.json?limit=100`;
+
     this.http
       .get<RedditResponse>(
         this.paginationState.after
-          ? this.api + `&after=${this.paginationState.after}`
-          : this.api
+          ? api + `&after=${this.paginationState.after}`
+          : api
       )
       .pipe(
         map((res) => this.convertRedditPostsToGifs(res.data.children)),
@@ -51,7 +56,21 @@ export class RedditService {
       });
   }
 
-  reset(subreddit: string) {}
+  reset(subreddit: string) {
+    this.settings = {
+      ...this.settings,
+      subreddit,
+    };
+
+    this.paginationState = {
+      ...this.paginationState,
+      after: null,
+    };
+
+    this.gifs$.next([]);
+
+    this.loadGifs();
+  }
 
   private convertRedditPostsToGifs(posts: RedditPost[]) {
     return posts.map((post) => ({
