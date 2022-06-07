@@ -28,4 +28,12 @@ describe('SettingsComponent', () => {
   it('should create', () => {
     expect(component).toBeTruthy();
   });
+
+  describe('settingsForm', () => {
+    it('should bind subreddit input', () => {});
+
+    it('should bind posts per page input', () => {});
+
+    it('should bind sort input', () => {});
+  });
 });
