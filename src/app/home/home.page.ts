@@ -6,7 +6,12 @@ import {
 } from '@angular/core';
 import { FormControl } from '@angular/forms';
 import { BehaviorSubject, combineLatest, Subject } from 'rxjs';
-import { map, takeUntil } from 'rxjs/operators';
+import {
+  debounceTime,
+  distinctUntilChanged,
+  map,
+  takeUntil,
+} from 'rxjs/operators';
 import { RedditService } from '../shared/data-access/reddit.service';
 
 @Component({
@@ -42,7 +47,7 @@ export class HomePage implements OnInit, OnDestroy {
   ngOnInit() {
     this.redditService.loadGifs();
     this.subredditFormControl.valueChanges
-      .pipe(takeUntil(this.destroy$))
+      .pipe(debounceTime(300), distinctUntilChanged(), takeUntil(this.destroy$))
       .subscribe((subreddit) => this.redditService.reset(subreddit));
   }
 
