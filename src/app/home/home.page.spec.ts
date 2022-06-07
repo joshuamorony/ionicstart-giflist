@@ -1,4 +1,10 @@
-import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
+import {
+  ComponentFixture,
+  fakeAsync,
+  TestBed,
+  tick,
+  waitForAsync,
+} from '@angular/core/testing';
 import { By } from '@angular/platform-browser';
 import { subscribeSpyTo } from '@hirez_io/observer-spy';
 import { IonicModule } from '@ionic/angular';
@@ -95,14 +101,17 @@ describe('HomePage', () => {
     expect(gif.dataLoaded).toBe(true);
   });
 
-  it('should call the reset method of the reddit service with the new subreddit when the value changes', () => {
+  it('should call the reset method of the reddit service with the new subreddit when the value changes', fakeAsync(() => {
     const redditService = fixture.debugElement.injector.get(RedditService);
     const testSubreddit = 'test';
 
     (component.subredditFormControl.valueChanges as any).next(testSubreddit);
 
+    // Wait for debounce time
+    tick(300);
+
     expect(redditService.reset).toHaveBeenCalledWith(testSubreddit);
-  });
+  }));
 
   describe('infinite scroll', () => {
     it('should call the loadGifs method in the reddit service when infinite scroll is triggered', () => {
