@@ -1,3 +1,17 @@
-<p>
-  settings works!
-</p>
+<ion-header>
+  <ion-toolbar>
+    <ion-title>Settings</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content>
+  <form [formGroup]="settingsForm">
+    <ion-input
+      data-test="default-subreddit"
+      clearInput
+      type="text"
+      placeholder="subreddit..."
+      formControlName="subreddit"
+    ></ion-input>
+  </form>
+</ion-content>

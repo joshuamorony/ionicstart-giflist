@@ -1,5 +1,7 @@
 import { Component } from '@angular/core';
 import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
+import { ReactiveFormsModule } from '@angular/forms';
+import { By } from '@angular/platform-browser';
 import { IonicModule } from '@ionic/angular';
 
 import { SettingsComponent } from './settings.component';
@@ -17,7 +19,7 @@ describe('SettingsComponent', () => {
   beforeEach(waitForAsync(() => {
     TestBed.configureTestingModule({
       declarations: [SettingsComponent],
-      imports: [IonicModule.forRoot()],
+      imports: [IonicModule.forRoot(), ReactiveFormsModule],
     }).compileComponents();
 
     fixture = TestBed.createComponent(SettingsComponent);
@@ -30,7 +32,18 @@ describe('SettingsComponent', () => {
   });
 
   describe('settingsForm', () => {
-    it('should bind subreddit input', () => {});
+    it('should bind subreddit input', () => {
+      const testValue = 'test';
+      component.settingsForm.get('subreddit')?.setValue(testValue);
+
+      fixture.detectChanges();
+
+      const subredditInput = fixture.debugElement.query(
+        By.css('[data-test="default-subreddit"]')
+      );
+
+      expect(subredditInput.componentInstance.value).toEqual(testValue);
+    });
 
     it('should bind posts per page input', () => {});
 

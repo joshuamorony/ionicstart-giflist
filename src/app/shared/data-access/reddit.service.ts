@@ -20,6 +20,8 @@ export class RedditService {
   };
   private settings: Settings = {
     subreddit: 'gifs',
+    perPage: 10,
+    sort: 'hot',
   };
 
   constructor(private http: HttpClient) {}
