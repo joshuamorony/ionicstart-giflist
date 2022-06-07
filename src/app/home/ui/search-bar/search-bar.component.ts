@@ -8,5 +8,5 @@ import { FormControl } from '@angular/forms';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class SearchBarComponent {
-  @Input() formControl!: FormControl;
+  @Input() subredditFormControl!: FormControl;
 }

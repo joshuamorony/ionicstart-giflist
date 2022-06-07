@@ -11,7 +11,7 @@ import { SearchBarComponent } from './search-bar.component';
   template: '',
 })
 export class MockSearchBarComponent {
-  @Input() formControl!: FormControl;
+  @Input() subredditFormControl!: FormControl;
 }
 
 describe('SearchBarComponent', () => {
@@ -33,7 +33,7 @@ describe('SearchBarComponent', () => {
     fixture = TestBed.createComponent(SearchBarComponent);
     component = fixture.componentInstance;
 
-    component.formControl = new FormControl('');
+    component.subredditFormControl = new FormControl('');
 
     fixture.detectChanges();
   }));
@@ -45,7 +45,7 @@ describe('SearchBarComponent', () => {
   describe('@formControl', () => {
     it('should bind search bar input to supplied form control', () => {
       const testValue = 'test';
-      component.formControl.setValue(testValue);
+      component.subredditFormControl.setValue(testValue);
 
       fixture.detectChanges();
 
