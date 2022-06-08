@@ -13,4 +13,10 @@ describe('SettingsService', () => {
   it('should be created', () => {
     expect(service).toBeTruthy();
   });
+
+  describe('save()', () => {
+    it('should save the settings in storage', () => {});
+
+    it('should emit the new settings on the settings stream', () => {});
+  });
 });
