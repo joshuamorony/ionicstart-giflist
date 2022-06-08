@@ -66,5 +66,11 @@ describe('SettingsComponent', () => {
 
       expect(input.componentInstance.value).toEqual(testValue);
     });
+
+    it('should pass data to save method of settings service when form is submitted', () => {
+      const settingsForm = fixture.debugElement.query(By.css('form'));
+
+      settingsForm.triggerEventHandler('ngSubmit', null);
+    });
   });
 });
