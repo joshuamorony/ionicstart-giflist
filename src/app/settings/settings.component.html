@@ -1,12 +1,17 @@
 <ion-header>
   <ion-toolbar>
     <ion-title>Settings</ion-title>
+    <ion-buttons slot="end">
+      <ion-button (click)="modalCtrl.dismiss()" data-test="modal-close-button">
+        <ion-icon slot="icon-only" name="close"></ion-icon>
+      </ion-button>
+    </ion-buttons>
   </ion-toolbar>
 </ion-header>
 
 <ion-content>
   <app-settings-form
     [settingsForm]="settingsForm"
-    (save)="settingsService.save(settingsForm.value)"
+    (save)="settingsService.save(settingsForm.value); modalCtrl.dismiss()"
   ></app-settings-form>
 </ion-content>
