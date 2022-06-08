@@ -1,11 +1,36 @@
 import { Injectable } from '@angular/core';
+import { BehaviorSubject } from 'rxjs';
 import { Settings } from '../interfaces';
 
 @Injectable({
   providedIn: 'root',
 })
 export class SettingsService {
-  constructor() {}
+  private settings$ = new BehaviorSubject<Settings>({
+    subreddit: '',
+    sort: 'hot',
+    perPage: 10,
+  });
 
-  save(settings: Settings) {}
+  private storage: Storage | null = null;
+
+  constructor(private ionicStorage: Storage) {}
+
+  async init() {
+    this.storage = await this.ionicStorage.create();
+
+    const settings = await this.storage?.get('settings');
+    if (settings) {
+      this.settings$.next(settings);
+    }
+  }
+
+  getSettings() {
+    return this.settings$.asObservable();
+  }
+
+  save(settings: Settings) {
+    this.settings$.next(settings);
+    this.storage?.set('settings', settings);
+  }
 }
