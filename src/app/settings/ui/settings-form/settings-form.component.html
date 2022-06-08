@@ -1,0 +1,22 @@
+<form [formGroup]="settingsForm" (ngSubmit)="save.emit(true)">
+  <ion-input
+    data-test="default-subreddit"
+    clearInput
+    type="text"
+    placeholder="subreddit..."
+    formControlName="subreddit"
+  ></ion-input>
+
+  <ion-segment color="primary" data-test="sort" formControlName="sort">
+    <ion-segment-button value="hot"> Hot </ion-segment-button>
+    <ion-segment-button value="new"> New </ion-segment-button>
+  </ion-segment>
+
+  <ion-segment color="primary" data-test="perPage" formControlName="perPage">
+    <ion-segment-button value="10"> 10 </ion-segment-button>
+    <ion-segment-button value="20"> 20 </ion-segment-button>
+    <ion-segment-button value="30"> 30 </ion-segment-button>
+  </ion-segment>
+
+  <ion-button type="submit" data-test="settings-save-button">Save</ion-button>
+</form>

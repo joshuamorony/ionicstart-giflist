@@ -5,9 +5,15 @@ import { ReactiveFormsModule } from '@angular/forms';
 import { IonicModule } from '@ionic/angular';
 
 import { SettingsComponent } from './settings.component';
+import { SettingsFormComponentModule } from './ui/settings-form/settings-form.module';
 
 @NgModule({
-  imports: [CommonModule, ReactiveFormsModule, IonicModule],
+  imports: [
+    CommonModule,
+    ReactiveFormsModule,
+    IonicModule,
+    SettingsFormComponentModule,
+  ],
   declarations: [SettingsComponent],
   exports: [SettingsComponent],
 })

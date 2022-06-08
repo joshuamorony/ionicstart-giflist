@@ -6,6 +6,7 @@ import { IonicModule } from '@ionic/angular';
 import { SettingsService } from '../shared/data-access/settings.service';
 
 import { SettingsComponent } from './settings.component';
+import { MockSettingsFormComponent } from './ui/settings-form/settings-form.component.spec';
 
 jest.mock('../shared/data-access/settings.service');
 
@@ -21,7 +22,7 @@ describe('SettingsComponent', () => {
 
   beforeEach(waitForAsync(() => {
     TestBed.configureTestingModule({
-      declarations: [SettingsComponent],
+      declarations: [SettingsComponent, MockSettingsFormComponent],
       providers: [SettingsService],
       imports: [IonicModule.forRoot(), ReactiveFormsModule],
     }).compileComponents();
@@ -35,52 +36,16 @@ describe('SettingsComponent', () => {
     expect(component).toBeTruthy();
   });
 
-  describe('settingsForm', () => {
-    it('should bind subreddit input', () => {
-      const testValue = 'test';
-      component.settingsForm.get('subreddit')?.setValue(testValue);
+  it('should pass settingsForm data to save method of settings service when form is submitted', () => {
+    const settingsService = fixture.debugElement.injector.get(SettingsService);
+    const settingsForm = fixture.debugElement.query(
+      By.css('app-settings-form')
+    );
 
-      fixture.detectChanges();
+    settingsForm.triggerEventHandler('save', null);
 
-      const input = fixture.debugElement.query(
-        By.css('[data-test="default-subreddit"]')
-      );
-
-      expect(input.componentInstance.value).toEqual(testValue);
-    });
-
-    it('should bind sort input', () => {
-      const testValue = 'new';
-      component.settingsForm.get('sort')?.setValue(testValue);
-
-      fixture.detectChanges();
-
-      const input = fixture.debugElement.query(By.css('[data-test="sort"]'));
-
-      expect(input.componentInstance.value).toEqual(testValue);
-    });
-
-    it('should bind posts per page input', () => {
-      const testValue = '30';
-      component.settingsForm.get('perPage')?.setValue(testValue);
-
-      fixture.detectChanges();
-
-      const input = fixture.debugElement.query(By.css('[data-test="perPage"]'));
-
-      expect(input.componentInstance.value).toEqual(testValue);
-    });
-
-    it('should pass data to save method of settings service when form is submitted', () => {
-      const settingsService =
-        fixture.debugElement.injector.get(SettingsService);
-      const settingsForm = fixture.debugElement.query(By.css('form'));
-
-      settingsForm.triggerEventHandler('ngSubmit', null);
-
-      expect(settingsService.save).toHaveBeenCalledWith(
-        component.settingsForm.value
-      );
-    });
+    expect(settingsService.save).toHaveBeenCalledWith(
+      component.settingsForm.value
+    );
   });
 });
