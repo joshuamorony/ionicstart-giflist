@@ -10,7 +10,7 @@ import { SettingsService } from './shared/data-access/settings.service';
 export class AppComponent implements OnInit {
   constructor(private settingsService: SettingsService) {}
 
-  ngOnInit() {
-    this.settingsService.init();
+  async ngOnInit() {
+    await this.settingsService.init();
   }
 }
