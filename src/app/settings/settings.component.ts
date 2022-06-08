@@ -1,5 +1,6 @@
 import { ChangeDetectionStrategy, Component } from '@angular/core';
 import { FormBuilder } from '@angular/forms';
+import { SettingsService } from '../shared/data-access/settings.service';
 
 @Component({
   selector: 'app-settings',
@@ -14,5 +15,8 @@ export class SettingsComponent {
     perPage: this.fb.control(10),
   });
 
-  constructor(private fb: FormBuilder) {}
+  constructor(
+    private fb: FormBuilder,
+    public settingsService: SettingsService
+  ) {}
 }

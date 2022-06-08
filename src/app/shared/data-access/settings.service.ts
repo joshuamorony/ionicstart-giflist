@@ -1,9 +1,11 @@
 import { Injectable } from '@angular/core';
+import { Settings } from '../interfaces';
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class SettingsService {
+  constructor() {}
 
-  constructor() { }
+  save(settings: Settings) {}
 }
