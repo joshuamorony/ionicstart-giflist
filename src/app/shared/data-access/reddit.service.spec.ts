@@ -22,15 +22,18 @@ describe('RedditService', () => {
   let testResponse: RedditResponse;
 
   let testSettings: BehaviorSubject<Settings>;
+  let testSubreddit: BehaviorSubject<string>;
   let api: string;
 
   beforeEach(() => {
     testSettings = new BehaviorSubject({
-      subreddit: 'test',
       sort: 'new',
       perPage: 5,
     } as Settings);
-    api = `https://www.reddit.com/r/${testSettings.value.subreddit}/${testSettings.value.sort}/.json?limit=100`;
+
+    testSubreddit = new BehaviorSubject('test');
+
+    api = `https://www.reddit.com/r/${testSubreddit.value}/${testSettings.value.sort}/.json?limit=100`;
 
     TestBed.configureTestingModule({
       imports: [HttpClientTestingModule],
@@ -45,7 +48,7 @@ describe('RedditService', () => {
     });
     service = TestBed.inject(RedditService);
     httpMock = TestBed.inject(HttpTestingController);
-    getGifsSpy = subscribeSpyTo(service.getGifs());
+    getGifsSpy = subscribeSpyTo(service.getGifs(testSubreddit));
 
     const testData: RedditPost = {
       data: {
@@ -100,10 +103,7 @@ describe('RedditService', () => {
 
     it('should clear cached gif data if subreddit changes', () => {
       const lengthBefore = getGifsSpy.getLastValue()?.length;
-      testSettings.next({
-        ...testSettings.value,
-        subreddit: 'test2',
-      });
+      testSubreddit.next('test2');
       const lengthAfter = getGifsSpy.getLastValue()?.length;
       expect(lengthAfter).toEqual(lengthBefore);
     });

@@ -1,6 +1,6 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { BehaviorSubject, combineLatest } from 'rxjs';
+import { BehaviorSubject, combineLatest, Observable } from 'rxjs';
 import { map, pairwise, startWith, switchMap, tap } from 'rxjs/operators';
 import {
   Gif,
@@ -28,31 +28,35 @@ export class RedditService {
     private settingsService: SettingsService
   ) {}
 
-  getGifs() {
-    return combineLatest([this.settings$, this.pagination$]).pipe(
-      // Get previous emission to see if subreddit has changed
+  getGifs(currentSubreddit$: Observable<string>) {
+    return combineLatest([
+      currentSubreddit$,
+      this.settings$,
+      this.pagination$,
+    ]).pipe(
+      // Start the stream with a null value, because pairwise will
+      // only start emitting once it has two values
       startWith(null),
+      // Get previous and current emission to see if subreddit has changed
       pairwise(),
       tap(([previous, current]) => {
         if (!previous || !current) {
           return;
         }
 
-        const [previousSettings] = previous;
-        const [currentSettings] = current;
-
-        if (previousSettings.subreddit !== currentSettings.subreddit) {
+        // Compare previous and current subreddit values
+        if (previous[0] !== current[0]) {
           // Subreddit has changed, reset cached gifs
           this.gifs$.next([]);
         }
       }),
       // We no longer need previous value, so just switch back to the latest value
-      map(([_, current]) => current as [Settings, RedditPagination]),
-      switchMap(([settings, pagination]) =>
+      map(([_, current]) => current as [string, Settings, RedditPagination]),
+      switchMap(([currentSubreddit, settings, pagination]) =>
         // Fetch next batch of gifs with current settings/pagination data
         this.http
           .get<RedditResponse>(
-            `https://www.reddit.com/r/${settings.subreddit}/${settings.sort}/.json?limit=100` +
+            `https://www.reddit.com/r/${currentSubreddit}/${settings.sort}/.json?limit=100` +
               (pagination.after ? `&after=${pagination.after}` : '')
           )
           .pipe(

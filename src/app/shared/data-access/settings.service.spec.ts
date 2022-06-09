@@ -57,7 +57,6 @@ describe('SettingsService', () => {
       const observerSpy = subscribeSpyTo(service.getSettings());
       await service.init();
       expect(observerSpy.getLastValue()).toEqual({
-        subreddit: 'gifs',
         sort: 'hot',
         perPage: 10,
       });
@@ -71,7 +70,6 @@ describe('SettingsService', () => {
       service.getSettings();
 
       expect(observerSpy.getFirstValue()).toEqual({
-        subreddit: 'gifs',
         sort: 'hot',
         perPage: 10,
       });
@@ -80,7 +78,6 @@ describe('SettingsService', () => {
 
   describe('save()', () => {
     const testSettings: Settings = {
-      subreddit: 'test',
       sort: 'new',
       perPage: 20,
     };
