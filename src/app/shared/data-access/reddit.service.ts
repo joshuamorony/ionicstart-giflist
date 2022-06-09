@@ -20,6 +20,8 @@ export class RedditService {
   private settings$ = this.settingsService.getSettings();
   private pagination$ = new BehaviorSubject<RedditPagination>({
     after: null,
+    totalFound: 0,
+    retries: 0,
     infiniteScroll: null,
   });
 
@@ -69,7 +71,18 @@ export class RedditService {
             // Add new gifs to cached gifs
             tap((gifs) => {
               this.gifs$.next([...this.gifs$.value, ...gifs]);
-              pagination.infiniteScroll?.complete();
+
+              // Was there enough to fill a page?
+              if (gifs.length + pagination.totalFound >= settings.perPage) {
+                pagination.infiniteScroll?.complete();
+              } else {
+                // Keep trying to find more gifs
+                this.pagination$.next({
+                  ...pagination,
+                  after: gifs[gifs.length - 1]?.name,
+                  totalFound: pagination.totalFound + gifs.length,
+                });
+              }
             }),
             // Return cached gifs
             switchMap(() => this.gifs$)
@@ -81,6 +94,8 @@ export class RedditService {
   nextPage(infiniteScrollEvent?: Event) {
     this.pagination$.next({
       after: this.gifs$.value[this.gifs$.value.length - 1]?.name,
+      totalFound: 0,
+      retries: 0,
       infiniteScroll:
         infiniteScrollEvent?.target as HTMLIonInfiniteScrollElement,
     });

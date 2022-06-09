@@ -28,7 +28,7 @@ describe('RedditService', () => {
   beforeEach(() => {
     testSettings = new BehaviorSubject({
       sort: 'new',
-      perPage: 5,
+      perPage: 2,
     } as Settings);
 
     testSubreddit = new BehaviorSubject('test');
@@ -116,6 +116,23 @@ describe('RedditService', () => {
 
       expect(sizeAfter).toEqual(sizeBefore + 1);
     });
+
+    it('should keep trying to find gifs if it does not get enough results to fill a page', () => {
+      const mockReq = httpMock.expectOne(api);
+      mockReq.flush(testResponse);
+
+      testSettings.next({
+        ...testSettings.value,
+        perPage: 15,
+      });
+
+      const mockReqTwo = httpMock.expectOne(api);
+      mockReqTwo.flush(testResponse);
+
+      expect(getGifsSpy.getLastValue()?.length).toBeGreaterThanOrEqual(15);
+    });
+
+    it('should give up after 10 attempts', () => {});
 
     it('should clear cached gif data if subreddit changes', () => {
       const lengthBefore = getGifsSpy.getLastValue()?.length;
