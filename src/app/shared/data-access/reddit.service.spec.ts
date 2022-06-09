@@ -6,10 +6,13 @@ import {
 } from '@angular/common/http/testing';
 import { SubscriberSpy, subscribeSpyTo } from '@hirez_io/observer-spy';
 import { Gif } from '../interfaces/gif';
+import { SettingsService } from './settings.service';
 import { RedditPost } from '../interfaces/reddit-post';
 import { RedditResponse } from '../interfaces/reddit-response';
 
 import { RedditService } from './reddit.service';
+import { BehaviorSubject, of } from 'rxjs';
+import { Settings } from '../interfaces';
 
 describe('RedditService', () => {
   let service: RedditService;
@@ -17,11 +20,28 @@ describe('RedditService', () => {
 
   let getGifsSpy: SubscriberSpy<Gif[]>;
   let testResponse: RedditResponse;
-  const api = `https://www.reddit.com/r/gifs/hot/.json?limit=100`;
+
+  let testSettings: BehaviorSubject<Settings>;
+  let api: string;
 
   beforeEach(() => {
+    testSettings = new BehaviorSubject({
+      subreddit: 'test',
+      sort: 'new',
+      perPage: 5,
+    } as Settings);
+    api = `https://www.reddit.com/r/${testSettings.value.subreddit}/${testSettings.value.sort}/.json?limit=100`;
+
     TestBed.configureTestingModule({
       imports: [HttpClientTestingModule],
+      providers: [
+        {
+          provide: SettingsService,
+          useValue: {
+            getSettings: jest.fn().mockReturnValue(testSettings),
+          },
+        },
+      ],
     });
     service = TestBed.inject(RedditService);
     httpMock = TestBed.inject(HttpTestingController);
@@ -69,28 +89,32 @@ describe('RedditService', () => {
   });
 
   describe('getGifs()', () => {
-    it('should return a stream of an array', () => {
-      expect(getGifsSpy.getLastValue()).toBeInstanceOf(Array);
+    it('should make request to subreddit and sort specified in settings', () => {
+      const mockReq = httpMock.expectOne(api);
+      mockReq.flush(testResponse);
+    });
+
+    it('should not emit more than the amount of items specified as perPage with each new emission', () => {
+      expect(false).toBeTruthy();
+    });
+
+    it('should clear cached gif data if subreddit changes', () => {
+      const lengthBefore = getGifsSpy.getLastValue()?.length;
+      testSettings.next({
+        ...testSettings.value,
+        subreddit: 'test2',
+      });
+      const lengthAfter = getGifsSpy.getLastValue()?.length;
+      expect(lengthAfter).toEqual(lengthBefore);
     });
   });
 
-  describe('loadGifs()', () => {
-    it('should cause new data to emit on getGifs() stream', () => {
-      service.loadGifs();
-
-      const mockReq = httpMock.expectOne(api);
-      mockReq.flush(testResponse);
-
-      expect(getGifsSpy.getLastValue()?.length).toBeGreaterThan(0);
-    });
-
+  describe('nextPage()', () => {
     it('should add additional data to getGifs() array every time it is called', () => {
-      service.loadGifs();
-
       const mockReq = httpMock.expectOne(api);
       mockReq.flush(testResponse);
 
-      service.loadGifs();
+      service.nextPage();
 
       const mockReqTwo = httpMock.expectOne((req) => req.url.includes(api));
       mockReqTwo.flush(testResponse);
@@ -104,8 +128,6 @@ describe('RedditService', () => {
     });
 
     it('should add the after parameter set to the name of the previous last gif if additional gifs are being loaded', () => {
-      service.loadGifs();
-
       const mockReq = httpMock.expectOne(api);
       mockReq.flush(testResponse);
 
@@ -113,7 +135,7 @@ describe('RedditService', () => {
         testResponse.data.children[testResponse.data.children.length - 1].data
           .name;
 
-      service.loadGifs();
+      service.nextPage();
 
       const mockReqTwo = httpMock.expectOne(api + `&after=${lastGifName}`);
       mockReqTwo.flush(testResponse);
@@ -126,10 +148,13 @@ describe('RedditService', () => {
         },
       } as any;
 
-      service.loadGifs(fakeInfiniteEvent);
-
       const mockReq = httpMock.expectOne(api);
       mockReq.flush(testResponse);
+
+      service.nextPage(fakeInfiniteEvent);
+
+      const mockReqTwo = httpMock.expectOne(api + '&after=somecoolpost');
+      mockReqTwo.flush(testResponse);
 
       expect(fakeInfiniteEvent.target.complete).toHaveBeenCalled();
     });
@@ -141,8 +166,6 @@ describe('RedditService', () => {
 
       const lengthWithNoPostFiltered = testResponse.data.children.length;
 
-      service.loadGifs();
-
       const mockReq = httpMock.expectOne(api);
       mockReq.flush(testResponse);
 
@@ -153,8 +176,6 @@ describe('RedditService', () => {
 
     it('should leave src unchanged if already in mp4 format', () => {
       testResponse.data.children[0].data.url = 'https://test.com/test.mp4';
-
-      service.loadGifs();
 
       const mockReq = httpMock.expectOne(api);
       mockReq.flush(testResponse);
@@ -169,8 +190,6 @@ describe('RedditService', () => {
     it('should convert src to mp4 format if the post is in .gifv format', () => {
       testResponse.data.children[0].data.url = 'https://test.com/test.gifv';
 
-      service.loadGifs();
-
       const mockReq = httpMock.expectOne(api);
       mockReq.flush(testResponse);
 
@@ -183,8 +202,6 @@ describe('RedditService', () => {
 
     it('should convert src to mp4 format if the post is in .webm format', () => {
       testResponse.data.children[0].data.url = 'https://test.com/test.webm';
-
-      service.loadGifs();
 
       const mockReq = httpMock.expectOne(api);
       mockReq.flush(testResponse);
@@ -200,8 +217,6 @@ describe('RedditService', () => {
       testResponse.data.children[0].data.secure_media.reddit_video.fallback_url =
         'test';
 
-      service.loadGifs();
-
       const mockReq = httpMock.expectOne(api);
       mockReq.flush(testResponse);
 
@@ -214,8 +229,6 @@ describe('RedditService', () => {
       testResponse.data.children[0].data.secure_media = null as any;
       testResponse.data.children[0].data.media.reddit_video.fallback_url =
         'test';
-
-      service.loadGifs();
 
       const mockReq = httpMock.expectOne(api);
       mockReq.flush(testResponse);
@@ -232,41 +245,12 @@ describe('RedditService', () => {
         fallback_url: 'test',
       } as any;
 
-      service.loadGifs();
-
       const mockReq = httpMock.expectOne(api);
       mockReq.flush(testResponse);
 
       const result = getGifsSpy.getLastValue();
 
       expect(result?.find((gif) => gif.src === 'test')).toBeTruthy();
-    });
-  });
-
-  describe('reset()', () => {
-    it('should make a request to the API for the subreddit supplied', () => {
-      const testSubreddit = 'test';
-      service.reset(testSubreddit);
-
-      const mockReq = httpMock.expectOne(api.replace('gifs', testSubreddit));
-      mockReq.flush(testResponse);
-    });
-
-    it('should emit the returned data on getGifs stream, clearing all other data', () => {
-      service.loadGifs();
-
-      const mockReq = httpMock.expectOne(api);
-      mockReq.flush(testResponse);
-
-      const testSubreddit = 'test';
-      service.reset(testSubreddit);
-
-      const mockReqTwo = httpMock.expectOne(api.replace('gifs', testSubreddit));
-      mockReqTwo.flush(testResponse);
-
-      expect(getGifsSpy.getLastValue()?.length).toEqual(
-        testResponse.data.children.length
-      );
     });
   });
 });

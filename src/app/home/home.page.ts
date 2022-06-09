@@ -11,6 +11,7 @@ import {
   distinctUntilChanged,
   map,
   takeUntil,
+  tap,
 } from 'rxjs/operators';
 import { RedditService } from '../shared/data-access/reddit.service';
 
@@ -47,10 +48,11 @@ export class HomePage implements OnInit, OnDestroy {
   constructor(private redditService: RedditService) {}
 
   ngOnInit() {
-    this.redditService.loadGifs();
     this.subredditFormControl.valueChanges
       .pipe(debounceTime(300), distinctUntilChanged(), takeUntil(this.destroy$))
-      .subscribe((subreddit) => this.redditService.reset(subreddit));
+      .subscribe((subreddit) => {
+        console.log('update settings');
+      });
   }
 
   ngOnDestroy() {
@@ -76,6 +78,6 @@ export class HomePage implements OnInit, OnDestroy {
   }
 
   loadMore(ev: Event) {
-    this.redditService.loadGifs(ev);
+    this.redditService.nextPage(ev);
   }
 }

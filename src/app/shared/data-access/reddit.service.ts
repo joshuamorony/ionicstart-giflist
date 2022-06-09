@@ -1,7 +1,7 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { BehaviorSubject } from 'rxjs';
-import { map } from 'rxjs/operators';
+import { BehaviorSubject, combineLatest } from 'rxjs';
+import { map, pairwise, startWith, switchMap, tap } from 'rxjs/operators';
 import {
   Gif,
   RedditPagination,
@@ -9,69 +9,73 @@ import {
   RedditResponse,
   Settings,
 } from '../interfaces';
+import { SettingsService } from './settings.service';
 
 @Injectable({
   providedIn: 'root',
 })
 export class RedditService {
   private gifs$ = new BehaviorSubject<Gif[]>([]);
-  private paginationState: RedditPagination = {
-    after: null,
-  };
-  private settings: Settings = {
-    subreddit: 'gifs',
-    perPage: 10,
-    sort: 'hot',
-  };
 
-  constructor(private http: HttpClient) {}
+  private settings$ = this.settingsService.getSettings();
+  private pagination$ = new BehaviorSubject<RedditPagination>({
+    after: null,
+    infiniteScroll: null,
+  });
+
+  constructor(
+    private http: HttpClient,
+    private settingsService: SettingsService
+  ) {}
 
   getGifs() {
-    return this.gifs$.asObservable();
-  }
-
-  loadGifs(infiniteScrollEvent?: Event) {
-    const api = `https://www.reddit.com/r/${this.settings.subreddit}/hot/.json?limit=100`;
-
-    this.http
-      .get<RedditResponse>(
-        this.paginationState.after
-          ? api + `&after=${this.paginationState.after}`
-          : api
-      )
-      .pipe(
-        map((res) => this.convertRedditPostsToGifs(res.data.children)),
-        map((gifs) => gifs.filter((gif) => gif.src !== null))
-      )
-      .subscribe((gifs) => {
-        this.gifs$.next([...this.gifs$.value, ...gifs]);
-
-        this.paginationState = {
-          after: gifs[gifs.length - 1].name,
-        };
-
-        if (infiniteScrollEvent) {
-          const infiniteElement =
-            infiniteScrollEvent.target as HTMLIonInfiniteScrollElement;
-          infiniteElement.complete();
+    return combineLatest([this.settings$, this.pagination$]).pipe(
+      // Get previous emission to see if subreddit has changed
+      startWith(null),
+      pairwise(),
+      tap(([previous, current]) => {
+        if (!previous || !current) {
+          return;
         }
-      });
+
+        const [previousSettings] = previous;
+        const [currentSettings] = current;
+
+        if (previousSettings.subreddit !== currentSettings.subreddit) {
+          // Subreddit has changed, reset cached gifs
+          this.gifs$.next([]);
+        }
+      }),
+      // We no longer need previous value, so just switch back to the latest value
+      map(([_, current]) => current as [Settings, RedditPagination]),
+      switchMap(([settings, pagination]) =>
+        // Fetch next batch of gifs with current settings/pagination data
+        this.http
+          .get<RedditResponse>(
+            `https://www.reddit.com/r/${settings.subreddit}/${settings.sort}/.json?limit=100` +
+              (pagination.after ? `&after=${pagination.after}` : '')
+          )
+          .pipe(
+            map((res) => this.convertRedditPostsToGifs(res.data.children)),
+            map((gifs) => gifs.filter((gif) => gif.src !== null)),
+            // Add new gifs to cached gifs
+            tap((gifs) => {
+              this.gifs$.next([...this.gifs$.value, ...gifs]);
+              pagination.infiniteScroll?.complete();
+            }),
+            // Return cached gifs
+            switchMap(() => this.gifs$)
+          )
+      )
+    );
   }
 
-  reset(subreddit: string) {
-    this.settings = {
-      ...this.settings,
-      subreddit,
-    };
-
-    this.paginationState = {
-      ...this.paginationState,
-      after: null,
-    };
-
-    this.gifs$.next([]);
-
-    this.loadGifs();
+  nextPage(infiniteScrollEvent?: Event) {
+    this.pagination$.next({
+      after: this.gifs$.value[this.gifs$.value.length - 1]?.name,
+      infiniteScroll:
+        infiniteScrollEvent?.target as HTMLIonInfiniteScrollElement,
+    });
   }
 
   private convertRedditPostsToGifs(posts: RedditPost[]) {

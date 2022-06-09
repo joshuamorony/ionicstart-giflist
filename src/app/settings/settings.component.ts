@@ -11,7 +11,6 @@ import { SettingsService } from '../shared/data-access/settings.service';
 })
 export class SettingsComponent {
   settingsForm = this.fb.group({
-    subreddit: this.fb.control(''),
     sort: this.fb.control(''),
     perPage: this.fb.control(10),
   });

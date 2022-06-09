@@ -44,6 +44,7 @@ describe('HomePage', () => {
             getGifs: jest.fn().mockReturnValue(of(testGifs)),
             loadGifs: jest.fn(),
             reset: jest.fn(),
+            nextPage: jest.fn(),
           },
         },
       ],
@@ -61,12 +62,6 @@ describe('HomePage', () => {
 
   it('should create', () => {
     expect(component).toBeTruthy();
-  });
-
-  it('should trigger loadGifs method in ngOnInit', () => {
-    const redditService = fixture.debugElement.injector.get(RedditService);
-
-    expect(redditService.loadGifs).toHaveBeenCalled();
   });
 
   it('should change loading state of gif when start event emits from gif-list', () => {
@@ -107,18 +102,6 @@ describe('HomePage', () => {
     expect(gif.dataLoaded).toBe(true);
   });
 
-  it('should call the reset method of the reddit service with the new subreddit when the value changes', fakeAsync(() => {
-    const redditService = fixture.debugElement.injector.get(RedditService);
-    const testSubreddit = 'test';
-
-    (component.subredditFormControl.valueChanges as any).next(testSubreddit);
-
-    // Wait for debounce time
-    tick(300);
-
-    expect(redditService.reset).toHaveBeenCalledWith(testSubreddit);
-  }));
-
   describe('settings modal', () => {
     it('should open the settings modal when the settings button is clicked', () => {
       const settingsButton = fixture.debugElement.query(
@@ -158,7 +141,7 @@ describe('HomePage', () => {
   });
 
   describe('infinite scroll', () => {
-    it('should call the loadGifs method in the reddit service when infinite scroll is triggered', () => {
+    it('should call the nextPage method in the reddit service when infinite scroll is triggered', () => {
       const redditService = fixture.debugElement.injector.get(RedditService);
 
       const infiniteElement = fixture.debugElement.query(
@@ -169,7 +152,7 @@ describe('HomePage', () => {
 
       infiniteElement.triggerEventHandler('ionInfinite', fakeInfiniteEvent);
 
-      expect(redditService.loadGifs).toHaveBeenCalledWith(fakeInfiniteEvent);
+      expect(redditService.nextPage).toHaveBeenCalledWith(fakeInfiniteEvent);
     });
   });
 });

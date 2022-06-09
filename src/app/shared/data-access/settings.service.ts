@@ -8,7 +8,7 @@ import { Settings } from '../interfaces';
 })
 export class SettingsService {
   private settings$ = new BehaviorSubject<Settings>({
-    subreddit: '',
+    subreddit: 'gifs',
     sort: 'hot',
     perPage: 10,
   });

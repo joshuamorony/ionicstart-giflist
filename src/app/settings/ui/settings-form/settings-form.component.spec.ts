@@ -55,19 +55,6 @@ describe('SettingsFormComponent', () => {
   });
 
   describe('@Input() settingsForm', () => {
-    it('should bind subreddit input', () => {
-      const testValue = 'test';
-      component.settingsForm.get('subreddit')?.setValue(testValue);
-
-      fixture.detectChanges();
-
-      const input = fixture.debugElement.query(
-        By.css('[data-test="default-subreddit"]')
-      );
-
-      expect(input.componentInstance.value).toEqual(testValue);
-    });
-
     it('should bind sort input', () => {
       const testValue = 'new';
       component.settingsForm.get('sort')?.setValue(testValue);
