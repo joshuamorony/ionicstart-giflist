@@ -60,8 +60,12 @@ export class RedditService {
               (pagination.after ? `&after=${pagination.after}` : '')
           )
           .pipe(
+            // Convert result into the format we need
             map((res) => this.convertRedditPostsToGifs(res.data.children)),
+            // Filter out any gifs where an appropriate src could not be found
             map((gifs) => gifs.filter((gif) => gif.src !== null)),
+            // If more than enough to fill a page, only return enough to satisfy the perPage settings
+            map((gifs) => gifs.slice(0, settings.perPage)),
             // Add new gifs to cached gifs
             tap((gifs) => {
               this.gifs$.next([...this.gifs$.value, ...gifs]);

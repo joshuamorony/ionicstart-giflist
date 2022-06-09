@@ -92,13 +92,29 @@ describe('RedditService', () => {
   });
 
   describe('getGifs()', () => {
-    it('should make request to subreddit and sort specified in settings', () => {
+    it('should make a request to the sort order specified in settings', () => {
       const mockReq = httpMock.expectOne(api);
       mockReq.flush(testResponse);
     });
 
     it('should not emit more than the amount of items specified as perPage with each new emission', () => {
-      expect(false).toBeTruthy();
+      const mockReq = httpMock.expectOne(api);
+      mockReq.flush(testResponse);
+
+      testSettings.next({
+        ...testSettings.value,
+        perPage: 1,
+      });
+
+      const mockReqTwo = httpMock.expectOne(api);
+      mockReqTwo.flush(testResponse);
+
+      const sizeBefore = getGifsSpy.getValueAt(
+        getGifsSpy.getValuesLength() - 2
+      ).length;
+      const sizeAfter = getGifsSpy.getLastValue()?.length;
+
+      expect(sizeAfter).toEqual(sizeBefore + 1);
     });
 
     it('should clear cached gif data if subreddit changes', () => {
