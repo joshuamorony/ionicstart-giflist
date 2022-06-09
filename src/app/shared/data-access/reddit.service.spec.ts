@@ -134,6 +134,18 @@ describe('RedditService', () => {
 
     it('should give up after 10 attempts', () => {});
 
+    it('stream should continue to work after http error', () => {
+      const mockReq = httpMock.expectOne(api);
+      mockReq.flush('', { status: 0, statusText: 'Unknown Error' });
+
+      service.nextPage();
+
+      const mockReqTwo = httpMock.expectOne(api);
+      mockReqTwo.flush(testResponse);
+
+      expect(getGifsSpy.getLastValue()?.length).toBeGreaterThan(0);
+    });
+
     it('should clear cached gif data if subreddit changes', () => {
       const lengthBefore = getGifsSpy.getLastValue()?.length;
       testSubreddit.next('test2');

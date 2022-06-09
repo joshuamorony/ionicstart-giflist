@@ -1,7 +1,16 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { BehaviorSubject, combineLatest, Observable } from 'rxjs';
-import { map, pairwise, startWith, switchMap, tap } from 'rxjs/operators';
+import { BehaviorSubject, combineLatest, EMPTY, Observable } from 'rxjs';
+import {
+  catchError,
+  concatMap,
+  map,
+  mergeMap,
+  pairwise,
+  startWith,
+  switchMap,
+  tap,
+} from 'rxjs/operators';
 import {
   Gif,
   RedditPagination,
@@ -54,7 +63,7 @@ export class RedditService {
       }),
       // We no longer need previous value, so just switch back to the latest value
       map(([_, current]) => current as [string, Settings, RedditPagination]),
-      switchMap(([currentSubreddit, settings, pagination]) =>
+      concatMap(([currentSubreddit, settings, pagination]) =>
         // Fetch next batch of gifs with current settings/pagination data
         this.http
           .get<RedditResponse>(
@@ -62,32 +71,63 @@ export class RedditService {
               (pagination.after ? `&after=${pagination.after}` : '')
           )
           .pipe(
+            // If there is an error, just return an empty observable
+            // This prevents the stream from breaking
+            catchError(() => EMPTY),
             // Convert result into the format we need
             map((res) => this.convertRedditPostsToGifs(res.data.children)),
             // Filter out any gifs where an appropriate src could not be found
-            map((gifs) => gifs.filter((gif) => gif.src !== null)),
-            // If more than enough to fill a page, only return enough to satisfy the perPage settings
-            map((gifs) => gifs.slice(0, settings.perPage)),
-            // Add new gifs to cached gifs
-            tap((gifs) => {
-              this.gifs$.next([...this.gifs$.value, ...gifs]);
-
-              // Was there enough to fill a page?
-              if (gifs.length + pagination.totalFound >= settings.perPage) {
-                pagination.infiniteScroll?.complete();
-              } else {
-                // Keep trying to find more gifs
-                this.pagination$.next({
-                  ...pagination,
-                  after: gifs[gifs.length - 1]?.name,
-                  totalFound: pagination.totalFound + gifs.length,
-                });
-              }
-            }),
-            // Return cached gifs
-            switchMap(() => this.gifs$)
+            // Trim to the per page value
+            // Keep a reference to the last gif to use as the 'after' value
+            map((gifs) => ({
+              gifs: gifs
+                .filter((gif) => gif.src !== null)
+                .slice(0, settings.perPage),
+              newAfterValue: gifs.length
+                ? gifs[gifs.length - 1].name
+                : pagination.after,
+            })),
+            // Also return the current settings and pagination values
+            map(({ gifs, newAfterValue }) => ({
+              gifs,
+              settings,
+              pagination,
+              newAfterValue,
+            }))
           )
-      )
+      ),
+      // Add new gifs to cached gifs
+      tap(({ gifs, settings, pagination, newAfterValue }) => {
+        console.log(gifs);
+        console.log(pagination);
+        this.gifs$.next([...this.gifs$.value, ...gifs]);
+
+        // Was there enough to fill a page?
+        if (gifs.length + pagination.totalFound >= settings.perPage) {
+          pagination.infiniteScroll?.complete();
+        } else {
+          // Keep trying to find more gifs
+
+          // If no gifs were returned in the previous attempt, then there is no
+          // point in continuing
+          if (gifs.length === 0) {
+            pagination.infiniteScroll?.complete();
+          } else {
+            // If there was at least one result, we can keep trying
+            this.pagination$.next({
+              ...pagination,
+              retries: pagination.retries + 1,
+              after: newAfterValue,
+              totalFound: pagination.totalFound + gifs.length,
+            });
+          }
+        }
+
+        // TODO: give up case
+      }),
+      tap((val) => console.log('here')),
+      // Return cached gifs
+      switchMap(() => this.gifs$)
     );
   }
 
