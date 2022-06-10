@@ -15,19 +15,25 @@
 </ion-header>
 
 <ion-content>
-  <app-gif-list
-    [gifs]="gifs$ | async"
-    (gifLoadStart)="setLoading($event)"
-    (gifLoadComplete)="setLoadingComplete($event)"
-  ></app-gif-list>
+  <ng-container *ngIf="{gifs: gifs$ | async} as vm">
+    <app-gif-list
+      [gifs]="vm.gifs"
+      (gifLoadStart)="setLoading($event)"
+      (gifLoadComplete)="setLoadingComplete($event)"
+    ></app-gif-list>
 
-  <ion-infinite-scroll threshold="100px" (ionInfinite)="loadMore($event)">
-    <ion-infinite-scroll-content
-      loadingSpinner="bubbles"
-      loadingText="Fetching gifs..."
+    <ion-infinite-scroll
+      *ngIf="vm.gifs"
+      threshold="100px"
+      (ionInfinite)="loadMore($event, vm.gifs)"
     >
-    </ion-infinite-scroll-content>
-  </ion-infinite-scroll>
+      <ion-infinite-scroll-content
+        loadingSpinner="bubbles"
+        loadingText="Fetching gifs..."
+      >
+      </ion-infinite-scroll-content>
+    </ion-infinite-scroll>
+  </ng-container>
 </ion-content>
 
 <ion-modal

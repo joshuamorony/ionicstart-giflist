@@ -3,6 +3,7 @@ import { FormControl } from '@angular/forms';
 import { BehaviorSubject, combineLatest, concat, of, Subject } from 'rxjs';
 import { debounceTime, distinctUntilChanged, map, take } from 'rxjs/operators';
 import { RedditService } from '../shared/data-access/reddit.service';
+import { Gif } from '../shared/interfaces';
 
 @Component({
   selector: 'app-home',
@@ -18,20 +19,7 @@ export class HomePage {
 
   // Combine the stream of gifs with the streams determining their loading status
   gifs$ = combineLatest([
-    this.redditService.getGifs(
-      // Pass in stream of current subreddit
-      concat(
-        // We want to start with just one emission of 'gifs' as a default
-        of('gifs').pipe(take(1)),
-        // And then use whatever value comes from the subreddit input
-        this.subredditFormControl.valueChanges.pipe(
-          // startWith('gifs') - this would achieve the same thing without using concat
-          // but we don't want the debounceTime applied to the first value
-          debounceTime(300),
-          distinctUntilChanged()
-        )
-      )
-    ),
+    this.redditService.getGifs(this.subredditFormControl),
     this.currentlyLoadingGifs$,
     this.loadedGifs$,
   ]).pipe(
@@ -64,7 +52,7 @@ export class HomePage {
     ]);
   }
 
-  loadMore(ev: Event) {
-    this.redditService.nextPage(ev);
+  loadMore(ev: Event, currentGifs: Gif[]) {
+    this.redditService.nextPage(ev, currentGifs[currentGifs.length - 1].name);
   }
 }
