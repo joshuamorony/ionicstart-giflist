@@ -14,9 +14,11 @@ import {
   concatMap,
   debounceTime,
   distinctUntilChanged,
+  expand,
   map,
   mergeMap,
   pairwise,
+  reduce,
   scan,
   startWith,
   switchMap,
@@ -52,13 +54,10 @@ export class RedditService {
   ) {}
 
   getGifs(subredditFormControl: FormControl) {
-    // Only emit when settings change
-    const settings$ = this.settings$.pipe(distinctUntilChanged());
-
     // Start with a default emission of 'gifs', then only emit when
     // subreddit changes
     const subreddit$ = concat(
-      of('gifs').pipe(take(1)),
+      of('gifs'),
       subredditFormControl.valueChanges.pipe(
         debounceTime(300),
         distinctUntilChanged(),
@@ -74,50 +73,55 @@ export class RedditService {
       )
     );
 
-    return combineLatest([subreddit$, settings$]).pipe(
+    return combineLatest([subreddit$, this.settings$]).pipe(
       switchMap(([subreddit, settings]) => {
         // Fetch Gifs
         const gifsForCurrentPage$ = this.pagination$.pipe(
           concatMap((pagination) =>
-            this.http
-              .get<RedditResponse>(
-                `https://www.reddit.com/r/${subreddit}/${settings.sort}/.json?limit=100` +
-                  (pagination.after ? `&after=${pagination.after}` : '')
-              )
-              .pipe(
-                // If there is an error, just return an empty observable
-                // This prevents the stream from breaking
-                catchError(() => EMPTY),
-                // Convert result into the format we need
-                map((res) => this.convertRedditPostsToGifs(res.data.children)),
-                // Filter out any gifs where an appropriate src could not be found
-                map((gifs) => {
-                  const validGifs = gifs.filter((gif) => gif.src !== null);
+            this.fetchFromReddit(
+              subreddit,
+              settings.sort,
+              pagination.after,
+              settings.perPage
+            ).pipe(
+              // Keep retrying until we have enough valid gifs to fill a page
+              expand((initialResult, index) => {
+                const validGifs = initialResult.gifs.filter(
+                  (gif) => gif.src !== null
+                );
+                const gifsRequired =
+                  initialResult.gifsRequired - validGifs.length;
+                const maxAttempts = 10;
 
-                  const notEnoughGifsToFillPage =
-                    pagination.totalFound + validGifs.length < settings.perPage;
+                // Keep trying if all criteria is met
+                // - we need more gifs to fill the page
+                // - we got at least one gif back from the API
+                // - we haven't exceeded the max retries
+                const shouldKeepTrying =
+                  gifsRequired > 0 &&
+                  initialResult.gifs.length &&
+                  index < maxAttempts;
 
-                  if (
-                    notEnoughGifsToFillPage &&
-                    pagination.retries < 10 &&
-                    gifs.length
-                  ) {
-                    this.pagination$.next({
-                      ...pagination,
-                      after: gifs[gifs.length - 1].name,
-                      totalFound: pagination.totalFound + validGifs.length,
-                      retries: pagination.retries + 1,
-                    });
-                  } else {
-                    pagination.infiniteScroll?.complete();
-                  }
+                if (!shouldKeepTrying) {
+                  pagination.infiniteScroll?.complete();
+                }
 
-                  return validGifs.slice(
-                    0,
-                    settings.perPage - pagination.totalFound
-                  );
-                })
-              )
+                return shouldKeepTrying
+                  ? this.fetchFromReddit(
+                      subreddit,
+                      settings.sort,
+                      initialResult.gifs[initialResult.gifs.length - 1].name,
+                      gifsRequired
+                    )
+                  : EMPTY; // Return an empty observable to stop retrying
+              })
+            )
+          ),
+          // Filter out any gifs without a src, and don't return more than the amount required
+          map((res) =>
+            res.gifs
+              .filter((gif) => gif.src !== null)
+              .slice(0, res.gifsRequired)
           )
         );
 
@@ -131,6 +135,37 @@ export class RedditService {
     );
   }
 
+  // Filter out any gifs where an appropriate src could not be found
+  // map((gifs) => {
+  //   const validGifs = gifs.filter((gif) => gif.src !== null);
+
+  //   const notEnoughGifsToFillPage =
+  //     pagination.totalFound + validGifs.length < settings.perPage;
+
+  //   if (
+  //     notEnoughGifsToFillPage &&
+  //     pagination.retries < 10 &&
+  //     gifs.length
+  //   ) {
+  //     // Retrigger the stream to attempt to find more gifs
+  //     this.pagination$.next({
+  //       ...pagination,
+  //       after: gifs[gifs.length - 1].name,
+  //       totalFound: pagination.totalFound + validGifs.length,
+  //       retries: pagination.retries + 1,
+  //     });
+  //   } else {
+  //     // We either have enough gifs now, or it's time to give up
+  //     pagination.infiniteScroll?.complete();
+  //   }
+
+  //   // Limit the number of gifs returned to the perPage value
+  //   // This needs to take into consideration multiple attempts
+  //   return validGifs.slice(
+  //     0,
+  //     settings.perPage - pagination.totalFound
+  //   );
+  // })
   nextPage(infiniteScrollEvent: Event, after: string) {
     console.log(after);
 
@@ -141,6 +176,30 @@ export class RedditService {
       infiniteScroll:
         infiniteScrollEvent?.target as HTMLIonInfiniteScrollElement,
     });
+  }
+
+  private fetchFromReddit(
+    subreddit: string,
+    sort: string,
+    after: string | null,
+    gifsRequired: number
+  ) {
+    return this.http
+      .get<RedditResponse>(
+        `https://www.reddit.com/r/${subreddit}/${sort}/.json?limit=100` +
+          (after ? `&after=${after}` : '')
+      )
+      .pipe(
+        // If there is an error, just return an empty observable
+        // This prevents the stream from breaking
+        catchError(() => EMPTY),
+
+        // Convert result into the format we need
+        map((res) => ({
+          gifs: this.convertRedditPostsToGifs(res.data.children),
+          gifsRequired,
+        }))
+      );
   }
 
   private keepFetchingIfNotEnoughGifs(
