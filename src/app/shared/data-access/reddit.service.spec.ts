@@ -127,12 +127,12 @@ describe('RedditService', () => {
         testPerPage / testResponse.data.children.length
       );
 
-      for (let i = 0; i < totalRequestsRequired; i++) {
-        const mockReq = httpMock.expectOne(api);
-        mockReq.flush(testResponse);
-      }
+      const mockRequests = httpMock.match(() => true);
+      expect(mockRequests.length).toBe(totalRequestsRequired);
 
-      expect(getGifsSpy.getLastValue()?.length).toBeGreaterThanOrEqual(15);
+      mockRequests.forEach((request) => {
+        request.flush(testResponse);
+      });
     });
 
     it('should give up after 10 attempts', () => {});
@@ -188,6 +188,7 @@ describe('RedditService', () => {
     });
 
     it('should call complete method on infinite scroll target if supplied once data has loaded', () => {
+      const testAfter = 'test';
       const fakeInfiniteEvent = {
         target: {
           complete: jest.fn(),
@@ -197,9 +198,9 @@ describe('RedditService', () => {
       const mockReq = httpMock.expectOne(api);
       mockReq.flush(testResponse);
 
-      service.nextPage(fakeInfiniteEvent, '');
+      service.nextPage(fakeInfiniteEvent, testAfter);
 
-      const mockReqTwo = httpMock.expectOne(api + '&after=somecoolpost');
+      const mockReqTwo = httpMock.expectOne(api + `&after=${testAfter}`);
       mockReqTwo.flush(testResponse);
 
       expect(fakeInfiniteEvent.target.complete).toHaveBeenCalled();

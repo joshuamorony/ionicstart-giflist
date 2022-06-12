@@ -24,7 +24,11 @@ describe('HomePage', () => {
     },
   ];
 
+  let testSettings: BehaviorSubject<any>;
+
   beforeEach(waitForAsync(() => {
+    testSettings = new BehaviorSubject({ perPage: 1 });
+
     TestBed.configureTestingModule({
       declarations: [
         HomePage,
@@ -46,11 +50,7 @@ describe('HomePage', () => {
         {
           provide: SettingsService,
           useValue: {
-            getSettings: jest.fn().mockReturnValue(
-              of({
-                perPage: 1,
-              })
-            ),
+            getSettings: jest.fn().mockReturnValue(testSettings),
           },
         },
       ],
@@ -166,7 +166,16 @@ describe('HomePage', () => {
     });
 
     it('should not display infinite scroll if enough gifs for one page have not been loaded', () => {
-      expect(true).toBeFalsy();
+      testSettings.next({
+        perPage: 2,
+      });
+      fixture.detectChanges();
+
+      const infiniteElementBefore = fixture.debugElement.query(
+        By.css('ion-infinite-scroll')
+      );
+
+      expect(infiniteElementBefore).toBeFalsy();
     });
   });
 });
