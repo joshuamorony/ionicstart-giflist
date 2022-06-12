@@ -1,8 +1,9 @@
 import { ChangeDetectionStrategy, Component } from '@angular/core';
 import { FormControl } from '@angular/forms';
-import { BehaviorSubject, combineLatest, concat, of, Subject } from 'rxjs';
-import { debounceTime, distinctUntilChanged, map, take } from 'rxjs/operators';
+import { BehaviorSubject, combineLatest } from 'rxjs';
+import { map } from 'rxjs/operators';
 import { RedditService } from '../shared/data-access/reddit.service';
+import { SettingsService } from '../shared/data-access/settings.service';
 import { Gif } from '../shared/interfaces';
 
 @Component({
@@ -16,6 +17,7 @@ export class HomePage {
   loadedGifs$ = new BehaviorSubject<string[]>([]);
   settingsModalIsOpen$ = new BehaviorSubject<boolean>(false);
   subredditFormControl = new FormControl('');
+  settings$ = this.settingsService.getSettings();
 
   // Combine the stream of gifs with the streams determining their loading status
   gifs$ = combineLatest([
@@ -32,7 +34,10 @@ export class HomePage {
     )
   );
 
-  constructor(private redditService: RedditService) {}
+  constructor(
+    private redditService: RedditService,
+    private settingsService: SettingsService
+  ) {}
 
   setLoading(permalink: string) {
     // Add the gifs permalink to the loading array

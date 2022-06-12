@@ -1,16 +1,11 @@
-import {
-  ComponentFixture,
-  fakeAsync,
-  TestBed,
-  tick,
-  waitForAsync,
-} from '@angular/core/testing';
+import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 import { By } from '@angular/platform-browser';
 import { subscribeSpyTo } from '@hirez_io/observer-spy';
 import { IonicModule } from '@ionic/angular';
 import { BehaviorSubject, of } from 'rxjs';
 import { MockSettingsComponent } from '../settings/settings.component.spec';
 import { RedditService } from '../shared/data-access/reddit.service';
+import { SettingsService } from '../shared/data-access/settings.service';
 
 import { HomePage } from './home.page';
 import { MockGifListComponent } from './ui/gif-list/gif-list.component.spec';
@@ -25,6 +20,7 @@ describe('HomePage', () => {
       permalink: 'test',
       loading: false,
       dataLoaded: false,
+      name: 'hello',
     },
   ];
 
@@ -45,6 +41,16 @@ describe('HomePage', () => {
             loadGifs: jest.fn(),
             reset: jest.fn(),
             nextPage: jest.fn(),
+          },
+        },
+        {
+          provide: SettingsService,
+          useValue: {
+            getSettings: jest.fn().mockReturnValue(
+              of({
+                perPage: 1,
+              })
+            ),
           },
         },
       ],
@@ -149,10 +155,18 @@ describe('HomePage', () => {
       );
 
       const fakeInfiniteEvent = 'test';
+      const lastGifName = testGifs[testGifs.length - 1].name;
 
       infiniteElement.triggerEventHandler('ionInfinite', fakeInfiniteEvent);
 
-      expect(redditService.nextPage).toHaveBeenCalledWith(fakeInfiniteEvent);
+      expect(redditService.nextPage).toHaveBeenCalledWith(
+        fakeInfiniteEvent,
+        lastGifName
+      );
+    });
+
+    it('should not display infinite scroll if enough gifs for one page have not been loaded', () => {
+      expect(true).toBeFalsy();
     });
   });
 });

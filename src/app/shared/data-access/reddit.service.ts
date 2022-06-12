@@ -1,14 +1,7 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { FormControl } from '@angular/forms';
-import {
-  BehaviorSubject,
-  combineLatest,
-  concat,
-  EMPTY,
-  Observable,
-  of,
-} from 'rxjs';
+import { BehaviorSubject, combineLatest, concat, EMPTY, of } from 'rxjs';
 import {
   catchError,
   concatMap,
@@ -16,30 +9,17 @@ import {
   distinctUntilChanged,
   expand,
   map,
-  mergeMap,
-  pairwise,
-  reduce,
   scan,
-  startWith,
   switchMap,
-  take,
   tap,
 } from 'rxjs/operators';
-import {
-  Gif,
-  RedditPagination,
-  RedditPost,
-  RedditResponse,
-  Settings,
-} from '../interfaces';
+import { RedditPagination, RedditPost, RedditResponse } from '../interfaces';
 import { SettingsService } from './settings.service';
 
 @Injectable({
   providedIn: 'root',
 })
 export class RedditService {
-  private gifs$ = new BehaviorSubject<Gif[]>([]);
-
   private settings$ = this.settingsService.getSettings();
   private pagination$ = new BehaviorSubject<RedditPagination>({
     after: null,
@@ -85,12 +65,11 @@ export class RedditService {
               settings.perPage
             ).pipe(
               // Keep retrying until we have enough valid gifs to fill a page
-              expand((initialResult, index) => {
-                const validGifs = initialResult.gifs.filter(
-                  (gif) => gif.src !== null
-                );
-                const gifsRequired =
-                  initialResult.gifsRequired - validGifs.length;
+              // 'expand' will keep repeating itself as long as it returns
+              // a non-empty observable
+              expand((res, index) => {
+                const validGifs = res.gifs.filter((gif) => gif.src !== null);
+                const gifsRequired = res.gifsRequired - validGifs.length;
                 const maxAttempts = 10;
 
                 // Keep trying if all criteria is met
@@ -98,9 +77,7 @@ export class RedditService {
                 // - we got at least one gif back from the API
                 // - we haven't exceeded the max retries
                 const shouldKeepTrying =
-                  gifsRequired > 0 &&
-                  initialResult.gifs.length &&
-                  index < maxAttempts;
+                  gifsRequired > 0 && res.gifs.length && index < maxAttempts;
 
                 if (!shouldKeepTrying) {
                   pagination.infiniteScroll?.complete();
@@ -110,7 +87,7 @@ export class RedditService {
                   ? this.fetchFromReddit(
                       subreddit,
                       settings.sort,
-                      initialResult.gifs[initialResult.gifs.length - 1].name,
+                      res.gifs[res.gifs.length - 1].name,
                       gifsRequired
                     )
                   : EMPTY; // Return an empty observable to stop retrying
@@ -118,6 +95,8 @@ export class RedditService {
             )
           ),
           // Filter out any gifs without a src, and don't return more than the amount required
+          // NOTE: Even though expand will keep repeating, each result of expand will be passed
+          // here immediately without waiting for all expand calls to complete
           map((res) =>
             res.gifs
               .filter((gif) => gif.src !== null)
@@ -135,40 +114,7 @@ export class RedditService {
     );
   }
 
-  // Filter out any gifs where an appropriate src could not be found
-  // map((gifs) => {
-  //   const validGifs = gifs.filter((gif) => gif.src !== null);
-
-  //   const notEnoughGifsToFillPage =
-  //     pagination.totalFound + validGifs.length < settings.perPage;
-
-  //   if (
-  //     notEnoughGifsToFillPage &&
-  //     pagination.retries < 10 &&
-  //     gifs.length
-  //   ) {
-  //     // Retrigger the stream to attempt to find more gifs
-  //     this.pagination$.next({
-  //       ...pagination,
-  //       after: gifs[gifs.length - 1].name,
-  //       totalFound: pagination.totalFound + validGifs.length,
-  //       retries: pagination.retries + 1,
-  //     });
-  //   } else {
-  //     // We either have enough gifs now, or it's time to give up
-  //     pagination.infiniteScroll?.complete();
-  //   }
-
-  //   // Limit the number of gifs returned to the perPage value
-  //   // This needs to take into consideration multiple attempts
-  //   return validGifs.slice(
-  //     0,
-  //     settings.perPage - pagination.totalFound
-  //   );
-  // })
   nextPage(infiniteScrollEvent: Event, after: string) {
-    console.log(after);
-
     this.pagination$.next({
       after,
       totalFound: 0,
@@ -194,53 +140,13 @@ export class RedditService {
         // This prevents the stream from breaking
         catchError(() => EMPTY),
 
-        // Convert result into the format we need
+        // Convert response into the gif format we need
+        // AND keep track of how many gifs we want from the API
         map((res) => ({
           gifs: this.convertRedditPostsToGifs(res.data.children),
           gifsRequired,
         }))
       );
-  }
-
-  private keepFetchingIfNotEnoughGifs(
-    gifs: Gif[],
-    settings: Settings,
-    pagination: RedditPagination
-  ) {
-    const validGifs = gifs.filter((gif) => gif.src !== null);
-    const isEnoughGifsToFillCurrentPage =
-      validGifs.length + pagination.totalFound >= settings.perPage;
-
-    if (isEnoughGifsToFillCurrentPage) {
-      // All good, complete
-      console.log('found enough gifs');
-      pagination.infiniteScroll?.complete();
-    } else {
-      // If no gifs were returned in the previous attempt, then there is no
-      // point in continuing. Also give up after 10 attempts.
-      const shouldGiveUp = validGifs.length === 0 || pagination.retries > 10;
-
-      if (shouldGiveUp) {
-        pagination.infiniteScroll?.complete();
-        console.log('giving up');
-      } else {
-        // If there was at least one result, we can keep recursively fetching more
-        // gifs to try and fill a page
-        this.pagination$.next({
-          ...pagination,
-          retries: pagination.retries + 1,
-          after: gifs[gifs.length - 1].name,
-          totalFound: pagination.totalFound + validGifs.length,
-        });
-        console.log(gifs);
-        console.log(this.pagination$.value);
-        console.log('try again');
-      }
-    }
-  }
-
-  private getValidGifs(gifs: Gif[]) {
-    return gifs.filter((gif) => gif.src !== null);
   }
 
   private convertRedditPostsToGifs(posts: RedditPost[]) {

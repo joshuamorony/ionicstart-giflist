@@ -15,7 +15,9 @@
 </ion-header>
 
 <ion-content>
-  <ng-container *ngIf="{gifs: gifs$ | async} as vm">
+  <ng-container
+    *ngIf="{gifs: gifs$ | async, settings: settings$ | async} as vm"
+  >
     <app-gif-list
       [gifs]="vm.gifs"
       (gifLoadStart)="setLoading($event)"
@@ -23,7 +25,7 @@
     ></app-gif-list>
 
     <ion-infinite-scroll
-      *ngIf="vm.gifs"
+      *ngIf="(vm.gifs && vm.settings) && vm.gifs.length >= vm.settings.perPage"
       threshold="100px"
       (ionInfinite)="loadMore($event, vm.gifs)"
     >

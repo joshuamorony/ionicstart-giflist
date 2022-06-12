@@ -13,6 +13,7 @@ import { RedditResponse } from '../interfaces/reddit-response';
 import { RedditService } from './reddit.service';
 import { BehaviorSubject, of } from 'rxjs';
 import { Settings } from '../interfaces';
+import { FormControl } from '@angular/forms';
 
 describe('RedditService', () => {
   let service: RedditService;
@@ -22,7 +23,7 @@ describe('RedditService', () => {
   let testResponse: RedditResponse;
 
   let testSettings: BehaviorSubject<Settings>;
-  let testSubreddit: BehaviorSubject<string>;
+  let testSubredditFormControl: FormControl;
   let api: string;
 
   beforeEach(() => {
@@ -31,9 +32,9 @@ describe('RedditService', () => {
       perPage: 2,
     } as Settings);
 
-    testSubreddit = new BehaviorSubject('test');
+    testSubredditFormControl = new FormControl('gifs');
 
-    api = `https://www.reddit.com/r/${testSubreddit.value}/${testSettings.value.sort}/.json?limit=100`;
+    api = `https://www.reddit.com/r/${testSubredditFormControl.value}/${testSettings.value.sort}/.json?limit=100`;
 
     TestBed.configureTestingModule({
       imports: [HttpClientTestingModule],
@@ -48,7 +49,7 @@ describe('RedditService', () => {
     });
     service = TestBed.inject(RedditService);
     httpMock = TestBed.inject(HttpTestingController);
-    getGifsSpy = subscribeSpyTo(service.getGifs(testSubreddit));
+    getGifsSpy = subscribeSpyTo(service.getGifs(testSubredditFormControl));
 
     const testData: RedditPost = {
       data: {
@@ -82,7 +83,7 @@ describe('RedditService', () => {
 
     testResponse = {
       data: {
-        children: [testData, testData],
+        children: [testData, testData, testData, testData],
       },
     };
   });
@@ -101,10 +102,7 @@ describe('RedditService', () => {
       const mockReq = httpMock.expectOne(api);
       mockReq.flush(testResponse);
 
-      testSettings.next({
-        ...testSettings.value,
-        perPage: 1,
-      });
+      service.nextPage({} as any, '');
 
       const mockReqTwo = httpMock.expectOne(api);
       mockReqTwo.flush(testResponse);
@@ -114,20 +112,25 @@ describe('RedditService', () => {
       ).length;
       const sizeAfter = getGifsSpy.getLastValue()?.length;
 
-      expect(sizeAfter).toEqual(sizeBefore + 1);
+      expect(sizeAfter).toEqual(sizeBefore + testSettings.value.perPage);
     });
 
     it('should keep trying to find gifs if it does not get enough results to fill a page', () => {
-      const mockReq = httpMock.expectOne(api);
-      mockReq.flush(testResponse);
+      const testPerPage = 15;
 
       testSettings.next({
         ...testSettings.value,
-        perPage: 15,
+        perPage: testPerPage,
       });
 
-      const mockReqTwo = httpMock.expectOne(api);
-      mockReqTwo.flush(testResponse);
+      const totalRequestsRequired = Math.ceil(
+        testPerPage / testResponse.data.children.length
+      );
+
+      for (let i = 0; i < totalRequestsRequired; i++) {
+        const mockReq = httpMock.expectOne(api);
+        mockReq.flush(testResponse);
+      }
 
       expect(getGifsSpy.getLastValue()?.length).toBeGreaterThanOrEqual(15);
     });
@@ -138,7 +141,7 @@ describe('RedditService', () => {
       const mockReq = httpMock.expectOne(api);
       mockReq.flush('', { status: 0, statusText: 'Unknown Error' });
 
-      service.nextPage();
+      service.nextPage({} as any, '');
 
       const mockReqTwo = httpMock.expectOne(api);
       mockReqTwo.flush(testResponse);
@@ -148,7 +151,7 @@ describe('RedditService', () => {
 
     it('should clear cached gif data if subreddit changes', () => {
       const lengthBefore = getGifsSpy.getLastValue()?.length;
-      testSubreddit.next('test2');
+      testSubredditFormControl.setValue('test2');
       const lengthAfter = getGifsSpy.getLastValue()?.length;
       expect(lengthAfter).toEqual(lengthBefore);
     });
@@ -159,7 +162,7 @@ describe('RedditService', () => {
       const mockReq = httpMock.expectOne(api);
       mockReq.flush(testResponse);
 
-      service.nextPage();
+      service.nextPage({} as any, '');
 
       const mockReqTwo = httpMock.expectOne((req) => req.url.includes(api));
       mockReqTwo.flush(testResponse);
@@ -172,17 +175,15 @@ describe('RedditService', () => {
       expect(sizeAfter).toBeGreaterThan(sizeBefore);
     });
 
-    it('should add the after parameter set to the name of the previous last gif if additional gifs are being loaded', () => {
+    it('should add the after parameter set to the passed in value', () => {
       const mockReq = httpMock.expectOne(api);
       mockReq.flush(testResponse);
 
-      const lastGifName =
-        testResponse.data.children[testResponse.data.children.length - 1].data
-          .name;
+      const testAfter = 'test';
 
-      service.nextPage();
+      service.nextPage({} as any, testAfter);
 
-      const mockReqTwo = httpMock.expectOne(api + `&after=${lastGifName}`);
+      const mockReqTwo = httpMock.expectOne(api + `&after=${testAfter}`);
       mockReqTwo.flush(testResponse);
     });
 
@@ -196,7 +197,7 @@ describe('RedditService', () => {
       const mockReq = httpMock.expectOne(api);
       mockReq.flush(testResponse);
 
-      service.nextPage(fakeInfiniteEvent);
+      service.nextPage(fakeInfiniteEvent, '');
 
       const mockReqTwo = httpMock.expectOne(api + '&after=somecoolpost');
       mockReqTwo.flush(testResponse);
