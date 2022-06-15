@@ -90,6 +90,42 @@ describe('RedditService', () => {
     expect(service).toBeTruthy();
   });
 
+  describe('isLoading$', () => {
+    let loadingSpy: SubscriberSpy<boolean>;
+
+    beforeEach(() => {
+      loadingSpy = subscribeSpyTo(service.isLoading$);
+    });
+
+    it('should be false initially', () => {
+      expect(loadingSpy.getLastValue()).toEqual(false);
+    });
+
+    it('should be true when getGifs is called', () => {
+      subscribeSpyTo(service.getGifs(testSubredditFormControl));
+      expect(loadingSpy.getLastValue()).toEqual(true);
+    });
+
+    it('should be true when nextPage is called', () => {
+      subscribeSpyTo(service.getGifs(testSubredditFormControl));
+
+      const mockReq = httpMock.expectOne(() => true);
+      mockReq.flush(testResponse);
+
+      service.nextPage({} as any, '');
+      expect(loadingSpy.getLastValue()).toEqual(true);
+    });
+
+    it('should be false once data has finished loading', () => {
+      subscribeSpyTo(service.getGifs(testSubredditFormControl));
+
+      const mockReq = httpMock.expectOne(() => true);
+      mockReq.flush(testResponse);
+
+      expect(loadingSpy.getLastValue()).toEqual(false);
+    });
+  });
+
   describe('getGifs()', () => {
     it('should make a request to the sort order specified in settings', () => {
       const getGifsSpy = subscribeSpyTo(

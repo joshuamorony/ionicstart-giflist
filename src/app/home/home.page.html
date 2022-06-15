@@ -12,6 +12,13 @@
       </ion-button>
     </ion-buttons>
   </ion-toolbar>
+  <ion-progress-bar
+    data-test="loading-bar"
+    color="dark"
+    *ngIf="redditService.isLoading$ | async"
+    type="indeterminate"
+    reversed="true"
+  ></ion-progress-bar>
 </ion-header>
 
 <ion-content>

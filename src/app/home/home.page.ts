@@ -35,7 +35,7 @@ export class HomePage {
   );
 
   constructor(
-    private redditService: RedditService,
+    public redditService: RedditService,
     private settingsService: SettingsService
   ) {}
 

@@ -20,6 +20,8 @@ import { SettingsService } from './settings.service';
   providedIn: 'root',
 })
 export class RedditService {
+  isLoading$ = new BehaviorSubject(false);
+
   private settings$ = this.settingsService.getSettings();
   private pagination$ = new BehaviorSubject<RedditPagination>({
     after: null,
@@ -57,6 +59,7 @@ export class RedditService {
       switchMap(([subreddit, settings]) => {
         // Fetch Gifs
         const gifsForCurrentPage$ = this.pagination$.pipe(
+          tap(() => this.isLoading$.next(true)),
           concatMap((pagination) =>
             this.fetchFromReddit(
               subreddit,
@@ -81,6 +84,7 @@ export class RedditService {
 
                 if (!shouldKeepTrying) {
                   pagination.infiniteScroll?.complete();
+                  this.isLoading$.next(false);
                 }
 
                 return shouldKeepTrying

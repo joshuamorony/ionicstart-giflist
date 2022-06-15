@@ -25,9 +25,11 @@ describe('HomePage', () => {
   ];
 
   let testSettings: BehaviorSubject<any>;
+  let testIsLoading: BehaviorSubject<boolean>;
 
   beforeEach(waitForAsync(() => {
     testSettings = new BehaviorSubject({ perPage: 1 });
+    testIsLoading = new BehaviorSubject<boolean>(false);
 
     TestBed.configureTestingModule({
       declarations: [
@@ -45,6 +47,7 @@ describe('HomePage', () => {
             loadGifs: jest.fn(),
             reset: jest.fn(),
             nextPage: jest.fn(),
+            isLoading$: testIsLoading,
           },
         },
         {
@@ -106,6 +109,28 @@ describe('HomePage', () => {
     const gif = observerSpy.getLastValue()[0];
 
     expect(gif.dataLoaded).toBe(true);
+  });
+
+  it('should display loading bar whilst gifs are loading', () => {
+    testIsLoading.next(true);
+    fixture.detectChanges();
+
+    const loadingBar = fixture.debugElement.query(
+      By.css('[data-test="loading-bar"]')
+    );
+
+    expect(loadingBar).toBeTruthy();
+  });
+
+  it('should NOT display loading bar when gifs are not loading', () => {
+    testIsLoading.next(false);
+    fixture.detectChanges();
+
+    const loadingBar = fixture.debugElement.query(
+      By.css('[data-test="loading-bar"]')
+    );
+
+    expect(loadingBar).toBeFalsy();
   });
 
   describe('settings modal', () => {
