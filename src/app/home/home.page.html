@@ -1,5 +1,5 @@
 <ion-header>
-  <ion-toolbar>
+  <ion-toolbar color="primary">
     <app-search-bar
       [subredditFormControl]="subredditFormControl"
     ></app-search-bar>
@@ -48,6 +48,7 @@
 <ion-modal
   [isOpen]="settingsModalIsOpen$ | async"
   (ionModalDidDismiss)="settingsModalIsOpen$.next(false)"
+  [presentingElement]="routerOutlet.nativeEl"
 >
   <ng-template>
     <app-settings></app-settings>

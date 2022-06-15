@@ -1,5 +1,6 @@
 import { ChangeDetectionStrategy, Component } from '@angular/core';
 import { FormControl } from '@angular/forms';
+import { IonRouterOutlet } from '@ionic/angular';
 import { BehaviorSubject, combineLatest } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { RedditService } from '../shared/data-access/reddit.service';
@@ -36,7 +37,8 @@ export class HomePage {
 
   constructor(
     public redditService: RedditService,
-    private settingsService: SettingsService
+    private settingsService: SettingsService,
+    public routerOutlet: IonRouterOutlet
   ) {}
 
   setLoading(permalink: string) {
