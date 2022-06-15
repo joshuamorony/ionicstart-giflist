@@ -1,5 +1,7 @@
 import {
-  getDefaultSubredditInput,
+  getListItems,
+  getNewSegment,
+  getPerPageInput,
   getSettingsSaveButton,
   navigateToSettingsPage,
 } from 'cypress/support/utils';
@@ -9,21 +11,21 @@ describe('Settings', () => {
     cy.intercept('GET', '**/gifs/hot/.json?limit=100*', {
       fixture: 'reddit-gifs.json',
     }).as('redditData');
-    cy.intercept('GET', '**/chemicalreactiongifs/hot/.json?limit=100*', {
+    cy.intercept('GET', '**/gifs/new/.json?limit=100*', {
       fixture: 'reddit-chemical.json',
     }).as('redditDataTwo');
     navigateToSettingsPage();
   });
 
-  it('should be able to change the default subreddit', () => {
-    getDefaultSubredditInput().type('chemicalreactiongifs');
+  it('should be able to change the posts shown per page', () => {
+    getPerPageInput().click();
+    getSettingsSaveButton().click();
+    getListItems().should('have.length', 20);
+  });
+
+  it('should be able to change sorting from hot to new', () => {
+    getNewSegment().click();
     getSettingsSaveButton().click();
     cy.wait('@redditDataTwo');
   });
-
-  it('should be able to change the posts shown per page', () => {});
-
-  it('should be able to change the default subreddit', () => {});
-
-  it('should be able to change sorting from hot to new', () => {});
 });

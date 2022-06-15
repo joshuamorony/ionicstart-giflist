@@ -9,10 +9,10 @@ import {
 
 describe('Home', () => {
   beforeEach(() => {
-    cy.intercept('GET', '**/gifs/hot/.json?limit=100*', {
+    cy.intercept('GET', '**/gifs/*/.json?limit=100*', {
       fixture: 'reddit-gifs.json',
     }).as('redditData');
-    cy.intercept('GET', '**/chemicalreactiongifs/hot/.json?limit=100*', {
+    cy.intercept('GET', '**/chemicalreactiongifs/*/.json?limit=100*', {
       fixture: 'reddit-chemical.json',
     }).as('redditDataTwo');
     navigateToHomePage();
@@ -42,12 +42,14 @@ describe('Home', () => {
   it('should be able to scroll to bottom load more videos', () => {
     // Wait for initial load
     cy.wait('@redditData');
+    cy.wait(300);
 
     getListItems().then((elements) => {
       const lengthBefore = elements.length;
       getScrollableContent().scrollTo('bottom');
 
       cy.wait('@redditData');
+      cy.wait(300);
 
       getListItems().then((elementsAfter) => {
         const lengthAfter = elementsAfter.length;

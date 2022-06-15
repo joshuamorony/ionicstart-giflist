@@ -5,8 +5,11 @@ export const navigateToSettingsPage = () => {
   getSettingsButton().click();
 };
 
-export const getDefaultSubredditInput = () =>
-  cy.get('[data-test="default-subreddit"] input');
+export const getPerPageInput = () =>
+  cy.get('[data-test="perPage"] ion-segment-button[ng-reflect-value="20"]');
+
+export const getNewSegment = () =>
+  cy.get('[data-test="sort"] ion-segment-button[ng-reflect-value="new"]');
 
 export const getSettingsSaveButton = () =>
   cy.get('[data-test="settings-save-button"]');
