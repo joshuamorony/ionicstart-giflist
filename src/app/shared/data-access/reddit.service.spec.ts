@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/naming-convention */
-import { TestBed } from '@angular/core/testing';
+import { fakeAsync, TestBed, tick } from '@angular/core/testing';
 import {
   HttpTestingController,
   HttpClientTestingModule,
@@ -19,7 +19,6 @@ describe('RedditService', () => {
   let service: RedditService;
   let httpMock: HttpTestingController;
 
-  let getGifsSpy: SubscriberSpy<Gif[]>;
   let testResponse: RedditResponse;
 
   let testSettings: BehaviorSubject<Settings>;
@@ -49,7 +48,6 @@ describe('RedditService', () => {
     });
     service = TestBed.inject(RedditService);
     httpMock = TestBed.inject(HttpTestingController);
-    getGifsSpy = subscribeSpyTo(service.getGifs(testSubredditFormControl));
 
     const testData: RedditPost = {
       data: {
@@ -94,11 +92,19 @@ describe('RedditService', () => {
 
   describe('getGifs()', () => {
     it('should make a request to the sort order specified in settings', () => {
+      const getGifsSpy = subscribeSpyTo(
+        service.getGifs(testSubredditFormControl)
+      );
+
       const mockReq = httpMock.expectOne(api);
       mockReq.flush(testResponse);
     });
 
     it('should not emit more than the amount of items specified as perPage with each new emission', () => {
+      const getGifsSpy = subscribeSpyTo(
+        service.getGifs(testSubredditFormControl)
+      );
+
       const mockReq = httpMock.expectOne(api);
       mockReq.flush(testResponse);
 
@@ -115,29 +121,55 @@ describe('RedditService', () => {
       expect(sizeAfter).toEqual(sizeBefore + testSettings.value.perPage);
     });
 
-    it('should keep trying to find gifs if it does not get enough results to fill a page', () => {
-      const testPerPage = 15;
+    it('should keep trying to find gifs if it does not get enough results to fill a page', fakeAsync(() => {
+      // Require 4 requests worth of gifs
+      const attempts = 4;
+      const testPerPage = attempts * testResponse.data.children.length;
 
       testSettings.next({
-        ...testSettings.value,
         perPage: testPerPage,
+        sort: 'new',
       });
 
-      const totalRequestsRequired = Math.ceil(
-        testPerPage / testResponse.data.children.length
+      const getGifsSpy = subscribeSpyTo(
+        service.getGifs(testSubredditFormControl)
       );
 
-      const mockRequests = httpMock.match(() => true);
-      expect(mockRequests.length).toBe(totalRequestsRequired);
-
-      mockRequests.forEach((request) => {
-        request.flush(testResponse);
+      [...Array(attempts)].forEach(() => {
+        httpMock.expectOne(() => true).flush(testResponse);
       });
+
+      expect(getGifsSpy.getLastValue()?.length).toEqual(16);
+    }));
+
+    it('should give up after 10 attempts', () => {
+      // Require 4 requests worth of gifs
+      const attempts = 11;
+      const testPerPage = attempts * testResponse.data.children.length;
+
+      testSettings.next({
+        perPage: testPerPage,
+        sort: 'new',
+      });
+
+      const getGifsSpy = subscribeSpyTo(
+        service.getGifs(testSubredditFormControl)
+      );
+
+      [...Array(10)].forEach(() => {
+        httpMock.expectOne(() => true).flush(testResponse);
+      });
+
+      expect(getGifsSpy.getLastValue()?.length).toEqual(
+        10 * testResponse.data.children.length
+      );
     });
 
-    it('should give up after 10 attempts', () => {});
-
     it('stream should continue to work after http error', () => {
+      const getGifsSpy = subscribeSpyTo(
+        service.getGifs(testSubredditFormControl)
+      );
+
       const mockReq = httpMock.expectOne(api);
       mockReq.flush('', { status: 0, statusText: 'Unknown Error' });
 
@@ -150,6 +182,10 @@ describe('RedditService', () => {
     });
 
     it('should clear cached gif data if subreddit changes', () => {
+      const getGifsSpy = subscribeSpyTo(
+        service.getGifs(testSubredditFormControl)
+      );
+
       const lengthBefore = getGifsSpy.getLastValue()?.length;
       testSubredditFormControl.setValue('test2');
       const lengthAfter = getGifsSpy.getLastValue()?.length;
@@ -159,6 +195,10 @@ describe('RedditService', () => {
 
   describe('nextPage()', () => {
     it('should add additional data to getGifs() array every time it is called', () => {
+      const getGifsSpy = subscribeSpyTo(
+        service.getGifs(testSubredditFormControl)
+      );
+
       const mockReq = httpMock.expectOne(api);
       mockReq.flush(testResponse);
 
@@ -176,6 +216,10 @@ describe('RedditService', () => {
     });
 
     it('should add the after parameter set to the passed in value', () => {
+      const getGifsSpy = subscribeSpyTo(
+        service.getGifs(testSubredditFormControl)
+      );
+
       const mockReq = httpMock.expectOne(api);
       mockReq.flush(testResponse);
 
@@ -195,18 +239,26 @@ describe('RedditService', () => {
         },
       } as any;
 
-      const mockReq = httpMock.expectOne(api);
+      const getGifsSpy = subscribeSpyTo(
+        service.getGifs(testSubredditFormControl)
+      );
+
+      const mockReq = httpMock.expectOne(() => true);
       mockReq.flush(testResponse);
 
       service.nextPage(fakeInfiniteEvent, testAfter);
 
-      const mockReqTwo = httpMock.expectOne(api + `&after=${testAfter}`);
+      const mockReqTwo = httpMock.expectOne(() => true);
       mockReqTwo.flush(testResponse);
 
       expect(fakeInfiniteEvent.target.complete).toHaveBeenCalled();
     });
 
     it('should filter out any gifs that do not have a useable src property', () => {
+      const getGifsSpy = subscribeSpyTo(
+        service.getGifs(testSubredditFormControl)
+      );
+
       testResponse.data.children[0].data.secure_media = null as any;
       testResponse.data.children[0].data.media.reddit_video = null as any;
       testResponse.data.children[0].data.preview = null as any;
@@ -222,6 +274,10 @@ describe('RedditService', () => {
     });
 
     it('should leave src unchanged if already in mp4 format', () => {
+      const getGifsSpy = subscribeSpyTo(
+        service.getGifs(testSubredditFormControl)
+      );
+
       testResponse.data.children[0].data.url = 'https://test.com/test.mp4';
 
       const mockReq = httpMock.expectOne(api);
@@ -235,6 +291,10 @@ describe('RedditService', () => {
     });
 
     it('should convert src to mp4 format if the post is in .gifv format', () => {
+      const getGifsSpy = subscribeSpyTo(
+        service.getGifs(testSubredditFormControl)
+      );
+
       testResponse.data.children[0].data.url = 'https://test.com/test.gifv';
 
       const mockReq = httpMock.expectOne(api);
@@ -248,6 +308,10 @@ describe('RedditService', () => {
     });
 
     it('should convert src to mp4 format if the post is in .webm format', () => {
+      const getGifsSpy = subscribeSpyTo(
+        service.getGifs(testSubredditFormControl)
+      );
+
       testResponse.data.children[0].data.url = 'https://test.com/test.webm';
 
       const mockReq = httpMock.expectOne(api);
@@ -261,6 +325,10 @@ describe('RedditService', () => {
     });
 
     it('should convert src to secure media if available, if gifv or webm not available', () => {
+      const getGifsSpy = subscribeSpyTo(
+        service.getGifs(testSubredditFormControl)
+      );
+
       testResponse.data.children[0].data.secure_media.reddit_video.fallback_url =
         'test';
 
@@ -273,6 +341,9 @@ describe('RedditService', () => {
     });
 
     it('should convert src to media if available and none of the above available', () => {
+      const getGifsSpy = subscribeSpyTo(
+        service.getGifs(testSubredditFormControl)
+      );
       testResponse.data.children[0].data.secure_media = null as any;
       testResponse.data.children[0].data.media.reddit_video.fallback_url =
         'test';
@@ -286,6 +357,9 @@ describe('RedditService', () => {
     });
 
     it('should convert src to fallback url of preview if no media objects are available', () => {
+      const getGifsSpy = subscribeSpyTo(
+        service.getGifs(testSubredditFormControl)
+      );
       testResponse.data.children[0].data.secure_media = null as any;
       testResponse.data.children[0].data.media.reddit_video = null as any;
       testResponse.data.children[0].data.preview.reddit_video_preview = {
