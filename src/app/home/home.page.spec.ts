@@ -143,7 +143,7 @@ describe('HomePage', () => {
 
       fixture.detectChanges();
 
-      const settingsModal = fixture.debugElement.query(By.css('ion-modal'));
+      const settingsModal = fixture.debugElement.query(By.css('ion-popover'));
       expect(settingsModal.componentInstance.isOpen).toBe(true);
     });
 
@@ -156,15 +156,15 @@ describe('HomePage', () => {
 
       fixture.detectChanges();
 
-      const settingsModal = fixture.debugElement.query(By.css('ion-modal'));
+      const settingsModal = fixture.debugElement.query(By.css('ion-popover'));
       expect(settingsModal.componentInstance.isOpen).toBe(true);
 
-      settingsModal.triggerEventHandler('ionModalDidDismiss', true);
+      settingsModal.triggerEventHandler('ionPopoverDidDismiss', true);
 
       fixture.detectChanges();
 
       const settingsModalAfter = fixture.debugElement.query(
-        By.css('ion-modal')
+        By.css('ion-popover')
       );
 
       expect(settingsModalAfter.componentInstance.isOpen).toBe(false);

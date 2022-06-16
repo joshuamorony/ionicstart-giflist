@@ -37,8 +37,7 @@ export class HomePage {
 
   constructor(
     public redditService: RedditService,
-    private settingsService: SettingsService,
-    public routerOutlet: IonRouterOutlet
+    private settingsService: SettingsService
   ) {}
 
   setLoading(permalink: string) {

@@ -1,8 +1,10 @@
 <ion-header>
-  <ion-toolbar color="primary">
-    <ion-title>Settings</ion-title>
+  <ion-toolbar color="light">
     <ion-buttons slot="end">
-      <ion-button (click)="modalCtrl.dismiss()" data-test="modal-close-button">
+      <ion-button
+        (click)="popoverCtrl.dismiss()"
+        data-test="modal-close-button"
+      >
         <ion-icon slot="icon-only" name="close"></ion-icon>
       </ion-button>
     </ion-buttons>
@@ -12,6 +14,6 @@
 <ion-content class="ion-padding">
   <app-settings-form
     [settingsForm]="settingsForm"
-    (save)="settingsService.save(settingsForm.value); modalCtrl.dismiss()"
+    (save)="settingsService.save(settingsForm.value); popoverCtrl.dismiss()"
   ></app-settings-form>
 </ion-content>

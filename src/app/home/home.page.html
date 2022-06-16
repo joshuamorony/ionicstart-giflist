@@ -5,6 +5,7 @@
     ></app-search-bar>
     <ion-buttons slot="end">
       <ion-button
+        id="settings-button"
         data-test="settings-button"
         (click)="settingsModalIsOpen$.next(true)"
       >
@@ -45,12 +46,12 @@
   </ng-container>
 </ion-content>
 
-<ion-modal
+<ion-popover
+  trigger="settings-button"
   [isOpen]="settingsModalIsOpen$ | async"
-  (ionModalDidDismiss)="settingsModalIsOpen$.next(false)"
-  [presentingElement]="routerOutlet.nativeEl"
+  (ionPopoverDidDismiss)="settingsModalIsOpen$.next(false)"
 >
   <ng-template>
     <app-settings></app-settings>
   </ng-template>
-</ion-modal>
+</ion-popover>

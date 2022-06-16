@@ -1,6 +1,6 @@
 import { ChangeDetectionStrategy, Component } from '@angular/core';
 import { FormBuilder } from '@angular/forms';
-import { ModalController } from '@ionic/angular';
+import { PopoverController } from '@ionic/angular';
 import { SettingsService } from '../shared/data-access/settings.service';
 
 @Component({
@@ -18,6 +18,6 @@ export class SettingsComponent {
   constructor(
     private fb: FormBuilder,
     public settingsService: SettingsService,
-    public modalCtrl: ModalController
+    public popoverCtrl: PopoverController
   ) {}
 }

@@ -2,7 +2,7 @@ import { Component } from '@angular/core';
 import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 import { ReactiveFormsModule } from '@angular/forms';
 import { By } from '@angular/platform-browser';
-import { IonicModule, ModalController } from '@ionic/angular';
+import { IonicModule, PopoverController } from '@ionic/angular';
 import { SettingsService } from '../shared/data-access/settings.service';
 
 import { SettingsComponent } from './settings.component';
@@ -26,7 +26,7 @@ describe('SettingsComponent', () => {
       providers: [
         SettingsService,
         {
-          provide: ModalController,
+          provide: PopoverController,
           useValue: {
             dismiss: jest.fn(),
           },
@@ -58,7 +58,7 @@ describe('SettingsComponent', () => {
   });
 
   it('should dismiss when form is saved', () => {
-    const modalController = fixture.debugElement.injector.get(ModalController);
+    const popoverCtrl = fixture.debugElement.injector.get(PopoverController);
 
     const settingsForm = fixture.debugElement.query(
       By.css('app-settings-form')
@@ -66,11 +66,11 @@ describe('SettingsComponent', () => {
 
     settingsForm.triggerEventHandler('save', null);
 
-    expect(modalController.dismiss).toHaveBeenCalled();
+    expect(popoverCtrl.dismiss).toHaveBeenCalled();
   });
 
   it('should be able to dismiss by clicking close button', () => {
-    const modalController = fixture.debugElement.injector.get(ModalController);
+    const popoverCtrl = fixture.debugElement.injector.get(PopoverController);
 
     const closeButton = fixture.debugElement.query(
       By.css('[data-test="modal-close-button"]')
@@ -78,6 +78,6 @@ describe('SettingsComponent', () => {
 
     closeButton.nativeElement.click();
 
-    expect(modalController.dismiss).toHaveBeenCalled();
+    expect(popoverCtrl.dismiss).toHaveBeenCalled();
   });
 });
