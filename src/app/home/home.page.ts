@@ -17,7 +17,7 @@ export class HomePage {
   currentlyLoadingGifs$ = new BehaviorSubject<string[]>([]);
   loadedGifs$ = new BehaviorSubject<string[]>([]);
   settingsModalIsOpen$ = new BehaviorSubject<boolean>(false);
-  subredditFormControl = new FormControl('');
+  subredditFormControl = new FormControl('gifs');
   settings$ = this.settingsService.getSettings();
 
   // Combine the stream of gifs with the streams determining their loading status

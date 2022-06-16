@@ -10,6 +10,7 @@ import {
   expand,
   map,
   scan,
+  startWith,
   switchMap,
   tap,
 } from 'rxjs/operators';
@@ -38,20 +39,18 @@ export class RedditService {
   getGifs(subredditFormControl: FormControl) {
     // Start with a default emission of 'gifs', then only emit when
     // subreddit changes
-    const subreddit$ = concat(
-      of('gifs'),
-      subredditFormControl.valueChanges.pipe(
-        debounceTime(300),
-        distinctUntilChanged(),
-        // Reset pagination values
-        tap(() =>
-          this.pagination$.next({
-            after: null,
-            totalFound: 0,
-            retries: 0,
-            infiniteScroll: null,
-          })
-        )
+    const subreddit$ = subredditFormControl.valueChanges.pipe(
+      debounceTime(300),
+      distinctUntilChanged(),
+      startWith(subredditFormControl.value),
+      // Reset pagination values
+      tap(() =>
+        this.pagination$.next({
+          after: null,
+          totalFound: 0,
+          retries: 0,
+          infiniteScroll: null,
+        })
       )
     );
 
