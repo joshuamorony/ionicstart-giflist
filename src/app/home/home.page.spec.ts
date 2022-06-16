@@ -143,8 +143,8 @@ describe('HomePage', () => {
 
       fixture.detectChanges();
 
-      const settingsModal = fixture.debugElement.query(By.css('ion-popover'));
-      expect(settingsModal.componentInstance.isOpen).toBe(true);
+      const settingsPopover = fixture.debugElement.query(By.css('ion-popover'));
+      expect(settingsPopover.componentInstance.isOpen).toBe(true);
     });
 
     it('should close the settings modal when the modals ionModalDidDismiss emits', () => {
@@ -156,18 +156,18 @@ describe('HomePage', () => {
 
       fixture.detectChanges();
 
-      const settingsModal = fixture.debugElement.query(By.css('ion-popover'));
-      expect(settingsModal.componentInstance.isOpen).toBe(true);
+      const settingsPopover = fixture.debugElement.query(By.css('ion-popover'));
+      expect(settingsPopover.componentInstance.isOpen).toBe(true);
 
-      settingsModal.triggerEventHandler('ionPopoverDidDismiss', true);
+      settingsPopover.triggerEventHandler('ionPopoverDidDismiss', true);
 
       fixture.detectChanges();
 
-      const settingsModalAfter = fixture.debugElement.query(
+      const settingsPopoverAfter = fixture.debugElement.query(
         By.css('ion-popover')
       );
 
-      expect(settingsModalAfter.componentInstance.isOpen).toBe(false);
+      expect(settingsPopoverAfter.componentInstance.isOpen).toBe(false);
     });
   });
 
