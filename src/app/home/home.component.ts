@@ -9,7 +9,7 @@ import { SettingsComponentModule } from '../settings/settings.module';
 import { RedditService } from '../shared/data-access/reddit.service';
 import { SettingsService } from '../shared/data-access/settings.service';
 import { Gif } from '../shared/interfaces';
-import { GifListComponentModule } from './ui/gif-list/gif-list.module';
+import { GifListComponentModule } from './ui/gif-list/gif-list.component';
 import { SearchBarComponentModule } from './ui/search-bar/search-bar.module';
 
 @Component({
