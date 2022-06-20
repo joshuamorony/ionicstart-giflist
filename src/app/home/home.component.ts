@@ -5,7 +5,7 @@ import { RouterModule } from '@angular/router';
 import { IonicModule } from '@ionic/angular';
 import { BehaviorSubject, combineLatest } from 'rxjs';
 import { map } from 'rxjs/operators';
-import { SettingsComponentModule } from '../settings/settings.module';
+import { SettingsComponentModule } from '../settings/settings.component';
 import { RedditService } from '../shared/data-access/reddit/reddit.service';
 import { SettingsService } from '../shared/data-access/settings/settings.service';
 import { Gif } from '../shared/interfaces';
