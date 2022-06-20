@@ -10,7 +10,7 @@ import { RedditService } from '../shared/data-access/reddit.service';
 import { SettingsService } from '../shared/data-access/settings.service';
 import { Gif } from '../shared/interfaces';
 import { GifListComponentModule } from './ui/gif-list/gif-list.component';
-import { SearchBarComponentModule } from './ui/search-bar/search-bar.module';
+import { SearchBarComponentModule } from './ui/search-bar/search-bar.component';
 
 @Component({
   selector: 'app-home',
