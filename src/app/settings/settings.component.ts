@@ -1,7 +1,7 @@
 import { ChangeDetectionStrategy, Component } from '@angular/core';
 import { FormBuilder } from '@angular/forms';
 import { PopoverController } from '@ionic/angular';
-import { SettingsService } from '../shared/data-access/settings.service';
+import { SettingsService } from '../shared/data-access/settings/settings.service';
 
 @Component({
   selector: 'app-settings',

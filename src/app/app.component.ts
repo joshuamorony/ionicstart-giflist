@@ -6,7 +6,7 @@ import {
 } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
 import { RouteReuseStrategy } from '@angular/router';
-import { SettingsService } from './shared/data-access/settings.service';
+import { SettingsService } from './shared/data-access/settings/settings.service';
 
 import { IonicModule, IonicRouteStrategy } from '@ionic/angular';
 

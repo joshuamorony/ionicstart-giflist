@@ -14,8 +14,8 @@ import {
   switchMap,
   tap,
 } from 'rxjs/operators';
-import { RedditPagination, RedditPost, RedditResponse } from '../interfaces';
-import { SettingsService } from './settings.service';
+import { RedditPagination, RedditPost, RedditResponse } from '../../interfaces';
+import { SettingsService } from '../settings/settings.service';
 
 @Injectable({
   providedIn: 'root',

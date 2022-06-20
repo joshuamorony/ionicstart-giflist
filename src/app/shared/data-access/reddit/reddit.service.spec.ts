@@ -5,14 +5,14 @@ import {
   HttpClientTestingModule,
 } from '@angular/common/http/testing';
 import { SubscriberSpy, subscribeSpyTo } from '@hirez_io/observer-spy';
-import { Gif } from '../interfaces/gif';
-import { SettingsService } from './settings.service';
-import { RedditPost } from '../interfaces/reddit-post';
-import { RedditResponse } from '../interfaces/reddit-response';
+import { Gif } from '../../interfaces/gif';
+import { SettingsService } from '../settings/settings.service';
+import { RedditPost } from '../../interfaces/reddit-post';
+import { RedditResponse } from '../../interfaces/reddit-response';
 
 import { RedditService } from './reddit.service';
 import { BehaviorSubject, of } from 'rxjs';
-import { Settings } from '../interfaces';
+import { Settings } from '../../interfaces';
 import { FormControl } from '@angular/forms';
 
 describe('RedditService', () => {
