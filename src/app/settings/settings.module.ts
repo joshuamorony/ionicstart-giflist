@@ -5,7 +5,7 @@ import { ReactiveFormsModule } from '@angular/forms';
 import { IonicModule } from '@ionic/angular';
 
 import { SettingsComponent } from './settings.component';
-import { SettingsFormComponentModule } from './ui/settings-form/settings-form.module';
+import { SettingsFormComponentModule } from './ui/settings-form/settings-form.component';
 
 @NgModule({
   imports: [
