@@ -7,13 +7,13 @@ import { MockSettingsComponent } from '../settings/settings.component.spec';
 import { RedditService } from '../shared/data-access/reddit.service';
 import { SettingsService } from '../shared/data-access/settings.service';
 
-import { HomePage } from './home.page';
+import { HomeComponent } from './home.component';
 import { MockGifListComponent } from './ui/gif-list/gif-list.component.spec';
 import { MockSearchBarComponent } from './ui/search-bar/search-bar.component.spec';
 
-describe('HomePage', () => {
-  let component: HomePage;
-  let fixture: ComponentFixture<HomePage>;
+describe('HomeComponent', () => {
+  let component: HomeComponent;
+  let fixture: ComponentFixture<HomeComponent>;
 
   const testGifs = [
     {
@@ -33,7 +33,7 @@ describe('HomePage', () => {
 
     TestBed.configureTestingModule({
       declarations: [
-        HomePage,
+        HomeComponent,
         MockGifListComponent,
         MockSearchBarComponent,
         MockSettingsComponent,
@@ -59,7 +59,7 @@ describe('HomePage', () => {
       ],
     }).compileComponents();
 
-    fixture = TestBed.createComponent(HomePage);
+    fixture = TestBed.createComponent(HomeComponent);
     component = fixture.componentInstance;
 
     component.subredditFormControl = {
