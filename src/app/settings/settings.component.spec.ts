@@ -3,7 +3,7 @@ import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 import { ReactiveFormsModule } from '@angular/forms';
 import { By } from '@angular/platform-browser';
 import { IonicModule, PopoverController } from '@ionic/angular';
-import { SettingsService } from '../shared/data-access/settings.service';
+import { SettingsService } from '../shared/data-access/settings/settings.service';
 
 import { SettingsComponent } from './settings.component';
 import { MockSettingsFormComponent } from './ui/settings-form/settings-form.component.spec';

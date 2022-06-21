@@ -4,8 +4,8 @@ import { subscribeSpyTo } from '@hirez_io/observer-spy';
 import { IonicModule } from '@ionic/angular';
 import { BehaviorSubject, of } from 'rxjs';
 import { MockSettingsComponent } from '../settings/settings.component.spec';
-import { RedditService } from '../shared/data-access/reddit.service';
-import { SettingsService } from '../shared/data-access/settings.service';
+import { RedditService } from '../shared/data-access/reddit/reddit.service';
+import { SettingsService } from '../shared/data-access/settings/settings.service';
 
 import { HomeComponent } from './home.component';
 import { MockGifListComponent } from './ui/gif-list/gif-list.component.spec';
