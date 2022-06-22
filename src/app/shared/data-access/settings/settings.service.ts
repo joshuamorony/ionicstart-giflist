@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { Storage } from '@ionic/storage-angular';
 import { BehaviorSubject } from 'rxjs';
-import { Settings } from '../interfaces';
+import { Settings } from '../../interfaces';
 
 @Injectable({
   providedIn: 'root',

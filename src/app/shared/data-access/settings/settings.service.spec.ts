@@ -1,6 +1,6 @@
 import { TestBed } from '@angular/core/testing';
 import { subscribeSpyTo } from '@hirez_io/observer-spy';
-import { Settings } from '../interfaces';
+import { Settings } from '../../interfaces';
 import { Storage } from '@ionic/storage-angular';
 
 import { SettingsService } from './settings.service';
