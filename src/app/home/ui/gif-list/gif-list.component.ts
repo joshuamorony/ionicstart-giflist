@@ -126,7 +126,7 @@ import { IonicModule } from '@ionic/angular';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class GifListComponent {
-  @Input() gifs!: Gif[] | null;
+  @Input() gifs!: Gif[];
   @Output() gifLoadStart = new EventEmitter<string>();
   @Output() gifLoadComplete = new EventEmitter<string>();
 

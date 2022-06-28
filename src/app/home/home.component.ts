@@ -44,7 +44,7 @@ import { SearchBarComponentModule } from './ui/search-bar/search-bar.component';
         *ngIf="{ gifs: gifs$ | async, settings: settings$ | async } as vm"
       >
         <app-gif-list
-          [gifs]="vm.gifs"
+          [gifs]="vm.gifs!"
           (gifLoadStart)="setLoading($event)"
           (gifLoadComplete)="setLoadingComplete($event)"
         ></app-gif-list>
