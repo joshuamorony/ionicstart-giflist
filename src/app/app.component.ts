@@ -21,7 +21,7 @@ import { AppRoutingModule } from './app-routing.module';
       <ion-router-outlet></ion-router-outlet>
     </ion-app>
   `,
-  styles: [''],
+  styles: [],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class AppComponent implements OnInit {
