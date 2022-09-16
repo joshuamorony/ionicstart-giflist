@@ -11,8 +11,12 @@ import { SettingsService } from './shared/data-access/settings/settings.service'
 import { IonicModule, IonicRouteStrategy } from '@ionic/angular';
 
 import { HttpClientModule } from '@angular/common/http';
+
+import { PreloadAllModules, RouterModule } from '@angular/router';
+
+import { Drivers } from '@ionic/storage';
 import { IonicStorageModule } from '@ionic/storage-angular';
-import { AppRoutingModule } from './app-routing.module';
+import * as CordovaSQLiteDriver from 'localforage-cordovasqlitedriver';
 
 @Component({
   selector: 'app-root',
@@ -38,9 +42,30 @@ export class AppComponent implements OnInit {
   imports: [
     BrowserModule,
     IonicModule.forRoot(),
-    AppRoutingModule,
     HttpClientModule,
-    IonicStorageModule.forRoot(),
+    IonicStorageModule.forRoot({
+      driverOrder: [
+        // eslint-disable-next-line no-underscore-dangle
+        CordovaSQLiteDriver._driver,
+        Drivers.IndexedDB,
+        Drivers.LocalStorage,
+      ],
+    }),
+    RouterModule.forRoot(
+      [
+        {
+          path: 'home',
+          loadChildren: () =>
+            import('./home/home.component').then((m) => m.HomeComponentModule),
+        },
+        {
+          path: '',
+          redirectTo: 'home',
+          pathMatch: 'full',
+        },
+      ],
+      { preloadingStrategy: PreloadAllModules }
+    ),
   ],
   providers: [{ provide: RouteReuseStrategy, useClass: IonicRouteStrategy }],
   bootstrap: [AppComponent],
