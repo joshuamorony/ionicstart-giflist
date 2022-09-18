@@ -2,9 +2,9 @@ import { CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 import { TestBed, waitForAsync } from '@angular/core/testing';
 
 import { AppComponent } from './app.component';
-import { SettingsService } from './shared/data-access/settings.service';
+import { SettingsService } from './shared/data-access/settings/settings.service';
 
-jest.mock('./shared/data-access/settings.service');
+jest.mock('./shared/data-access/settings/settings.service');
 
 describe('AppComponent', () => {
   beforeEach(waitForAsync(() => {

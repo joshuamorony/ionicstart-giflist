@@ -8,6 +8,7 @@ import { NgModule } from '@angular/core';
 import { ReactiveFormsModule } from '@angular/forms';
 import { IonicModule } from '@ionic/angular';
 import { SettingsFormComponentModule } from './ui/settings-form/settings-form.component';
+import { Settings } from '../shared/interfaces';
 
 @Component({
   selector: 'app-settings',
@@ -28,7 +29,7 @@ import { SettingsFormComponentModule } from './ui/settings-form/settings-form.co
     <ion-content class="ion-padding">
       <app-settings-form
         [settingsForm]="settingsForm"
-        (save)="settingsService.save(settingsForm.value); popoverCtrl.dismiss()"
+        (save)="handleSave()"
       ></app-settings-form>
     </ion-content>
   `,
@@ -46,9 +47,9 @@ import { SettingsFormComponentModule } from './ui/settings-form/settings-form.co
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class SettingsComponent {
-  settingsForm = this.fb.group({
-    sort: this.fb.control(''),
-    perPage: this.fb.control(10),
+  settingsForm = this.fb.nonNullable.group<Settings>({
+    sort: 'hot',
+    perPage: 10,
   });
 
   constructor(
@@ -56,6 +57,11 @@ export class SettingsComponent {
     public settingsService: SettingsService,
     public popoverCtrl: PopoverController
   ) {}
+
+  handleSave() {
+    this.settingsService.save(this.settingsForm.getRawValue());
+    this.popoverCtrl.dismiss();
+  }
 }
 
 @NgModule({

@@ -23,7 +23,7 @@ import { SettingsService } from '../settings/settings.service';
 export class RedditService {
   isLoading$ = new BehaviorSubject(false);
 
-  private settings$ = this.settingsService.getSettings();
+  private settings$ = this.settingsService.settings$;
   private pagination$ = new BehaviorSubject<RedditPagination>({
     after: null,
     totalFound: 0,

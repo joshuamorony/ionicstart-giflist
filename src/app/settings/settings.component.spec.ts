@@ -8,7 +8,7 @@ import { SettingsService } from '../shared/data-access/settings/settings.service
 import { SettingsComponent } from './settings.component';
 import { MockSettingsFormComponent } from './ui/settings-form/settings-form.component.spec';
 
-jest.mock('../shared/data-access/settings.service');
+jest.mock('../shared/data-access/settings/settings.service');
 
 @Component({
   selector: 'app-settings',

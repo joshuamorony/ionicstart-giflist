@@ -41,7 +41,7 @@ describe('RedditService', () => {
         {
           provide: SettingsService,
           useValue: {
-            getSettings: jest.fn().mockReturnValue(testSettings),
+            settings$: testSettings,
           },
         },
       ],

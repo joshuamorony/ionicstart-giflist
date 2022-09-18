@@ -31,8 +31,8 @@ import * as CordovaSQLiteDriver from 'localforage-cordovasqlitedriver';
 export class AppComponent implements OnInit {
   constructor(private settingsService: SettingsService) {}
 
-  async ngOnInit() {
-    await this.settingsService.init();
+  ngOnInit() {
+    this.settingsService.init();
   }
 }
 

@@ -15,36 +15,35 @@ import { SearchBarComponentModule } from './ui/search-bar/search-bar.component';
 @Component({
   selector: 'app-home',
   template: `
-    <ion-header>
-      <ion-toolbar color="primary">
-        <app-search-bar
-          [subredditFormControl]="subredditFormControl"
-        ></app-search-bar>
-        <ion-buttons slot="end">
-          <ion-button
-            id="settings-button"
-            data-test="settings-button"
-            (click)="settingsModalIsOpen$.next(true)"
-          >
-            <ion-icon slot="icon-only" name="settings"></ion-icon>
-          </ion-button>
-        </ion-buttons>
-      </ion-toolbar>
-      <ion-progress-bar
-        data-test="loading-bar"
-        color="dark"
-        *ngIf="redditService.isLoading$ | async"
-        type="indeterminate"
-        reversed="true"
-      ></ion-progress-bar>
-    </ion-header>
+    <ng-container *ngIf="vm$ | async as vm">
+      <ion-header>
+        <ion-toolbar color="primary">
+          <app-search-bar
+            [subredditFormControl]="subredditFormControl"
+          ></app-search-bar>
+          <ion-buttons slot="end">
+            <ion-button
+              id="settings-button"
+              data-test="settings-button"
+              (click)="settingsModalIsOpen$.next(true)"
+            >
+              <ion-icon slot="icon-only" name="settings"></ion-icon>
+            </ion-button>
+          </ion-buttons>
+        </ion-toolbar>
+        <ion-progress-bar
+          data-test="loading-bar"
+          color="dark"
+          *ngIf="vm.isLoading"
+          type="indeterminate"
+          reversed="true"
+        ></ion-progress-bar>
+      </ion-header>
 
-    <ion-content>
-      <ng-container
-        *ngIf="{ gifs: gifs$ | async, settings: settings$ | async } as vm"
-      >
+      <ion-content>
         <app-gif-list
-          [gifs]="vm.gifs!"
+          *ngIf="vm.gifs"
+          [gifs]="vm.gifs"
           (gifLoadStart)="setLoading($event)"
           (gifLoadComplete)="setLoadingComplete($event)"
         ></app-gif-list>
@@ -62,18 +61,17 @@ import { SearchBarComponentModule } from './ui/search-bar/search-bar.component';
           >
           </ion-infinite-scroll-content>
         </ion-infinite-scroll>
-      </ng-container>
-    </ion-content>
-
-    <ion-popover
-      trigger="settings-button"
-      [isOpen]="settingsModalIsOpen$ | async"
-      (ionPopoverDidDismiss)="settingsModalIsOpen$.next(false)"
-    >
-      <ng-template>
-        <app-settings></app-settings>
-      </ng-template>
-    </ion-popover>
+        <ion-popover
+          trigger="settings-button"
+          [isOpen]="vm.modalIsOpen"
+          (ionPopoverDidDismiss)="settingsModalIsOpen$.next(false)"
+        >
+          <ng-template>
+            <app-settings></app-settings>
+          </ng-template>
+        </ion-popover>
+      </ion-content>
+    </ng-container>
   `,
   styles: [
     `
@@ -93,7 +91,6 @@ export class HomeComponent {
   loadedGifs$ = new BehaviorSubject<string[]>([]);
   settingsModalIsOpen$ = new BehaviorSubject<boolean>(false);
   subredditFormControl = new FormControl('gifs');
-  settings$ = this.settingsService.getSettings();
 
   // Combine the stream of gifs with the streams determining their loading status
   gifs$ = combineLatest([
@@ -108,6 +105,20 @@ export class HomeComponent {
         dataLoaded: loadedGifs.includes(gif.permalink),
       }))
     )
+  );
+
+  vm$ = combineLatest([
+    this.gifs$,
+    this.settingsService.settings$,
+    this.redditService.isLoading$,
+    this.settingsModalIsOpen$,
+  ]).pipe(
+    map(([gifs, settings, isLoading, modalIsOpen]) => ({
+      gifs,
+      settings,
+      isLoading,
+      modalIsOpen,
+    }))
   );
 
   constructor(
