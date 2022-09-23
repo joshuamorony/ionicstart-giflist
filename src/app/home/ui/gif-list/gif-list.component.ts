@@ -145,8 +145,8 @@ export class GifListComponent {
         video.load();
 
         const handleVideoLoaded = async () => {
-          await video.play();
           this.gifLoadComplete.emit(gif.permalink);
+          await video.play();
           video.removeEventListener('loadeddata', handleVideoLoaded);
         };
 
