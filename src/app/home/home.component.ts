@@ -4,7 +4,7 @@ import { FormControl, ReactiveFormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
 import { IonicModule } from '@ionic/angular';
 import { BehaviorSubject, combineLatest } from 'rxjs';
-import { map } from 'rxjs/operators';
+import { map, startWith } from 'rxjs/operators';
 import { SettingsComponentModule } from '../settings/settings.component';
 import { RedditService } from '../shared/data-access/reddit/reddit.service';
 import { SettingsService } from '../shared/data-access/settings/settings.service';
@@ -49,9 +49,7 @@ import { SearchBarComponentModule } from './ui/search-bar/search-bar.component';
         ></app-gif-list>
 
         <ion-infinite-scroll
-          *ngIf="
-            vm.gifs && vm.settings && vm.gifs.length >= vm.settings.perPage
-          "
+          *ngIf="vm.gifs.length >= vm.settings.perPage"
           threshold="100px"
           (ionInfinite)="loadMore($event, vm.gifs)"
         >
@@ -108,7 +106,7 @@ export class HomeComponent {
   );
 
   vm$ = combineLatest([
-    this.gifs$,
+    this.gifs$.pipe(startWith([])),
     this.settingsService.settings$,
     this.redditService.isLoading$,
     this.settingsModalIsOpen$,
