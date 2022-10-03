@@ -26,7 +26,7 @@ import { SearchBarComponentModule } from './ui/search-bar/search-bar.component';
             <ion-button
               id="settings-button"
               data-test="settings-button"
-              (click)="store.settingsModalIsOpen$.next(true)"
+              (click)="store.setModalIsOpen(true)"
             >
               <ion-icon slot="icon-only" name="settings"></ion-icon>
             </ion-button>
@@ -63,7 +63,7 @@ import { SearchBarComponentModule } from './ui/search-bar/search-bar.component';
         <ion-popover
           trigger="settings-button"
           [isOpen]="vm.modalIsOpen"
-          (ionPopoverDidDismiss)="store.settingsModalIsOpen$.next(false)"
+          (ionPopoverDidDismiss)="store.setModalIsOpen(false)"
         >
           <ng-template>
             <app-settings></app-settings>
