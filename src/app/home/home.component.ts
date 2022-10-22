@@ -135,11 +135,11 @@ export class HomeComponent {
   setLoadingComplete(permalinkToComplete: string) {
     this.loadedGifs$.next([...this.loadedGifs$.value, permalinkToComplete]);
 
-    this.currentlyLoadingGifs$.next([
-      ...this.currentlyLoadingGifs$.value.filter(
+    this.currentlyLoadingGifs$.next(
+      this.currentlyLoadingGifs$.value.filter(
         (permalink) => !this.loadedGifs$.value.includes(permalink)
       ),
-    ]);
+    );
   }
 
   loadMore(ev: Event, currentGifs: Gif[]) {
